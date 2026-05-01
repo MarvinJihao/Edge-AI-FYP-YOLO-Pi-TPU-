@@ -1,4 +1,6 @@
-# Edge AI FYP YOLO Pi TPU
+# Edge-AI-FYP-YOLO-Pi-TPU
+
+Personal Program
 
 This repository contains the source code used for the final year project on
 YOLO-based object detection and edge AI deployment experiments.
