@@ -1,6 +1,6 @@
 from ultralytics import YOLO
 import cv2
-import math 
+import math
 # start webcam
 cap = cv2.VideoCapture(0)
 cap.set(3, 640)

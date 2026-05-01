@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# YOLOv5  by Ultralytics, GPL-3.0 license
 """
 AutoAnchor utils
 """
@@ -47,9 +47,9 @@ def check_anchors(dataset, model, thr=4.0, imgsz=640):
     bpr, aat = metric(anchors.cpu().view(-1, 2))
     s = f'\n{PREFIX}{aat:.2f} anchors/target, {bpr:.3f} Best Possible Recall (BPR). '
     if bpr > 0.98:  # threshold to recompute
-        LOGGER.info(f'{s}Current anchors are a good fit to dataset ✅')
+        LOGGER.info(f'{s}Current anchors are a good fit to dataset ')
     else:
-        LOGGER.info(f'{s}Anchors are a poor fit to dataset ⚠️, attempting to improve...')
+        LOGGER.info(f'{s}Anchors are a poor fit to dataset , attempting to improve...')
         na = m.anchors.numel() // 2  # number of anchors
         anchors = kmean_anchors(dataset, n=na, img_size=imgsz, thr=thr, gen=1000, verbose=False)
         new_bpr = metric(anchors)[0]
@@ -58,9 +58,9 @@ def check_anchors(dataset, model, thr=4.0, imgsz=640):
             m.anchors[:] = anchors.clone().view_as(m.anchors)
             check_anchor_order(m)  # must be in pixel-space (not grid-space)
             m.anchors /= stride
-            s = f'{PREFIX}Done ✅ (optional: update model *.yaml to use these anchors in the future)'
+            s = f'{PREFIX}Done  (optional: update model *.yaml to use these anchors in the future)'
         else:
-            s = f'{PREFIX}Done ⚠️ (original anchors better than new anchors, proceeding with original anchors)'
+            s = f'{PREFIX}Done  (original anchors better than new anchors, proceeding with original anchors)'
         LOGGER.info(s)
 
 
@@ -122,7 +122,7 @@ def kmean_anchors(dataset='./data/coco128.yaml', n=9, img_size=640, thr=4.0, gen
     # Filter
     i = (wh0 < 3.0).any(1).sum()
     if i:
-        LOGGER.info(f'{PREFIX}WARNING ⚠️ Extremely small objects found: {i} of {len(wh0)} labels are <3 pixels in size')
+        LOGGER.info(f'{PREFIX}WARNING  Extremely small objects found: {i} of {len(wh0)} labels are <3 pixels in size')
     wh = wh0[(wh0 >= 2.0).any(1)].astype(np.float32)  # filter > 2 pixels
     # wh = wh * (npr.rand(wh.shape[0], 1) * 0.9 + 0.1)  # multiply by random scale 0-1
 
@@ -134,7 +134,7 @@ def kmean_anchors(dataset='./data/coco128.yaml', n=9, img_size=640, thr=4.0, gen
         k = kmeans(wh / s, n, iter=30)[0] * s  # points
         assert n == len(k)  # kmeans may return fewer points than requested if wh is insufficient or too similar
     except Exception:
-        LOGGER.warning(f'{PREFIX}WARNING ⚠️ switching strategies from kmeans to random init')
+        LOGGER.warning(f'{PREFIX}WARNING  switching strategies from kmeans to random init')
         k = np.sort(npr.rand(n * 2)).reshape(n, 2) * img_size  # random init
     wh, wh0 = (torch.tensor(x, dtype=torch.float32) for x in (wh, wh0))
     k = print_results(k, verbose=False)

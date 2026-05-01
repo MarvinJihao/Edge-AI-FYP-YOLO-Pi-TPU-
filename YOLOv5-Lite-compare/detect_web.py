@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 
-# 应该在界面启动的时候就将模型加载出来，设置tmp的目录来放中间的处理结果
+# Temporary model/output files are stored in the static image folder.
 import shutil
 import PyQt5.QtCore
 from PyQt5.QtGui import *
@@ -56,15 +56,12 @@ def uopload_pic():
             flash('No selected file')
             return redirect(request.url)
 
-        # 获取安全的文件名 正常文件名
         filename = secure_filename(file.filename)
 
-        # 生成随机数
         random_num = random.randint(0, 100)
 
-        file_path = "./static/image/"  # basedir 代表获取当前位置的绝对路径
+        file_path = "./static/image/"  # basedir
 
-        # 如果文件夹不存在，就创建文件夹
         if not os.path.exists(file_path):
             os.makedirs(file_path)
 
@@ -88,15 +85,12 @@ def uopload_Android_pic():
             flash('No selected file')
             return redirect(request.url)
 
-        # 获取安全的文件名 正常文件名
         filename = secure_filename(file.filename)
 
-        # 生成随机数
         random_num = random.randint(0, 100)
 
-        file_path = "./static/image/"  # basedir 代表获取当前位置的绝对路径
+        file_path = "./static/image/"  # basedir
 
-        # 如果文件夹不存在，就创建文件夹
         if not os.path.exists(file_path):
             os.makedirs(file_path)
 
@@ -109,17 +103,14 @@ def is_Normal():
     return "200"
 
 
-def cv2AddChineseText(img, text, position, textColor=(0, 255, 0), textSize=30):
-    if (isinstance(img, np.ndarray)):  # 判断是否OpenCV图片类型
+def cv2_add_text(img, text, position, textColor=(0, 255, 0), textSize=30):
+    if (isinstance(img, np.ndarray)):
         img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-        # 创建一个可以在给定图像上绘图的对象
         draw = ImageDraw.Draw(img)
-        # 字体的格式
         fontStyle = ImageFont.truetype(
             "simsun.ttc", textSize, encoding="utf-8")
-        # 绘制文本
         draw.text(position, text, textColor, font=fontStyle)
-        # 转换回OpenCV格式
+        # Convert back to OpenCV BGR format.
         return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
 @torch.no_grad()
@@ -136,7 +127,7 @@ def model_load(weights="",  # model.pt path(s)
         half &= pt and device.type != 'cpu'  # half precision only supported by PyTorch on CUDA
         if pt:
             model.model.half() if half else model.model.float()
-        print("模型加载完成!")
+        print("Model loaded.")
         return model
 
 

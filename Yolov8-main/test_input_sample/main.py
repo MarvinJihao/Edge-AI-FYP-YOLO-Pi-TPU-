@@ -4,42 +4,42 @@ from pathlib import Path
 from ultralytics import YOLO
 
 # ============================================================
-# 1. 配置参数（按需修改）
+# 1. Configuration parameters (modify as needed)
 # ============================================================
 CONFIG = {
-    # 模型选择: yolov8n/s/m/l/x (n最小最快, x最大最准)
+    # Model selection: yolov8n/s/m/l/x (n is fastest, x is most accurate).
     "model": "yolov8n.pt",
 
-    # 数据集配置文件路径（自定义数据集需修改）
+    # Dataset configuration path.
     "data": "CrowdHumanHead/CrowdHumanHead.yaml",
-    # 训练超参数
+    # training hyperparameters
     "epochs": 1,
     "batch": 16,
     "imgsz": 640,
-    "lr0": 0.01,  # 初始学习率
-    "lrf": 0.01,  # 最终学习率 = lr0 * lrf
+    "lr0": 0.01,  # initial learning rate
+    "lrf": 0.01,  # final learning rate = lr0 * lrf
     "momentum": 0.937,
     "weight_decay": 0.0005,
     "warmup_epochs": 3,
 
-    # 数据增强
+    # data augmentation
     "augment": True,
-    "hsv_h": 0.015,  # 色调增强
-    "hsv_s": 0.7,  # 饱和度增强
-    "hsv_v": 0.4,  # 明度增强
-    "flipud": 0.0,  # 上下翻转概率
-    "fliplr": 0.5,  # 左右翻转概率
-    "mosaic": 1.0,  # Mosaic增强概率
+    "hsv_h": 0.015,  # hue augmentation
+    "hsv_s": 0.7,  # saturation augmentation
+    "hsv_v": 0.4,  # value augmentation
+    "flipud": 0.0,  # vertical flip probability
+    "fliplr": 0.5,  # horizontal flip probability
+    "mosaic": 1.0,  # Mosaic
 
-    # 训练设置
-    "device": "",  # "" 自动选择, 0=GPU, "cpu"=CPU
-    "workers": 8,  # 数据加载线程数（Windows建议设为0）
-    "patience": 50,  # 早停轮数（验证集无提升时停止）
+    # training settings
+    "device": "",  # "" automatic selection, 0=GPU, "cpu"=CPU
+    "workers": 8,  # data loading workers; use 0 on Windows if multiprocessing causes issues
+    "patience": 50,  # early stopping patience
     "project": "runs/train",
     "name": "yolov8_exp",
-    "exist_ok": False,  # 是否覆盖已有实验
-    # 导出设置
-    "export_format": "torchscript",  # 导出格式: onnx/tflite/torchscript
+    "exist_ok": False,  # whether to overwrite existing experiments
+    # export settings
+    "export_format": "torchscript",  # export format: onnx/tflite/torchscript
 }
 
 def create_dataset_yaml(
@@ -49,23 +49,23 @@ def create_dataset_yaml(
         save_path: str = "custom_dataset.yaml"
 ):
     """
-    生成自定义数据集的YAML配置文件
+    Generate a YAML configuration file for a custom dataset
 
-    数据集目录结构应为:
+    Expected dataset directory structure:
     dataset/
         images/
             train/  *.jpg
             val/    *.jpg
         labels/
-            train/  *.txt  (YOLO格式标注)
+            train/  *.txt  (YOLO)
             val/    *.txt
 
-    YOLO标注格式（每行）:
+    YOLO:
         class_id cx cy w h
-        （归一化坐标，相对于图像宽高）
+        normalized coordinates relative to image width and height
     """
     data = {
-        "path": str(Path(train_path).parent.parent),  # 数据集根目录
+        "path": str(Path(train_path).parent.parent),  # dataset root
         "train": train_path,
         "val": val_path,
         "nc": len(class_names),
@@ -73,26 +73,26 @@ def create_dataset_yaml(
     }
     with open(save_path, "w", encoding="utf-8") as f:
         yaml.dump(data, f, allow_unicode=True, default_flow_style=False)
-    print(f"数据集配置已生成: {save_path}")
+    print(f"Dataset configuration generated: {save_path}")
     return save_path
 
 
 # ============================================================
-# 3. 训练函数
+# 3. training function
 # ============================================================
 def train(config: dict):
     print("=" * 50)
-    print("开始训练 YOLOv8 模型")
+    print("Start training YOLOv8 model")
     print("=" * 50)
 
-    # 加载模型
+    # load model
     model = YOLO(config["model"])
-    print(f"模型: {config['model']}")
-    print(f"数据集: {config['data']}")
-    print(f"训练轮数: {config['epochs']}, 批次: {config['batch']}, 图像尺寸: {config['imgsz']}")
+    print(f"Model: {config['model']}")
+    print(f"Dataset: {config['data']}")
+    print(f"Epochs: {config['epochs']}, batch size: {config['batch']}, image size: {config['imgsz']}")
     print("-" * 50)
 
-    # 开始训练
+    # start training
     results = model.train(
         data=config["data"],
         epochs=config["epochs"],
@@ -116,26 +116,26 @@ def train(config: dict):
         project=config["project"],
         name=config["name"],
         exist_ok=config["exist_ok"],
-        plots=True,  # 生成训练曲线图
-        save=True,  # 保存checkpoint
+        plots=True,  # generate training curves
+        save=True,  # save checkpoint
         verbose=True,
     )
 
     save_dir = Path(results.save_dir)
     print("\n" + "=" * 50)
-    print(f"训练完成！")
-    print(f"结果保存路径: {save_dir}")
-    print(f"最佳模型: {save_dir / 'weights/best.pt'}")
-    print(f"最终模型: {save_dir / 'weights/last.pt'}")
+    print("Training complete")
+    print(f"Results saved to: {save_dir}")
+    print(f"Best model: {save_dir / 'weights/best.pt'}")
+    print(f"Final model: {save_dir / 'weights/last.pt'}")
     return model, save_dir
 
 
 # ============================================================
-# 4. 验证函数
+# 4. validation function
 # ============================================================
 def validate(model, data: str):
     print("\n" + "=" * 50)
-    print("📊 开始验证模型...")
+    print("Validating model...")
     metrics = model.val(data=data)
     print(f"mAP50:     {metrics.box.map50:.4f}")
     print(f"mAP50-95:  {metrics.box.map:.4f}")
@@ -145,74 +145,72 @@ def validate(model, data: str):
 
 
 # ============================================================
-# 5. 推理测试函数
+# 5. inference
 # ============================================================
 def predict(model, source: str, conf: float = 0.25, save: bool = True):
     """
-    source: 图片路径 / 视频路径 / 摄像头(0) / URL
+    source: image path / video path / webcam(0) / URL
     """
     print("\n" + "=" * 50)
-    print(f"推理测试: {source}")
+    print(f"inference: {source}")
     results = model.predict(
         source=source,
         conf=conf,
         save=save,
-        show=False,  # 树莓派无显示器时设为False
+        show=False,  # keep False for headless Raspberry Pi runs
     )
     for r in results:
-        print(f"  检测到 {len(r.boxes)} 个目标")
+        print(f"  detected {len(r.boxes)} objects")
     return results
 
 
 def export_model(model_path: str, export_format: str = "onnx"):
     """
-    导出模型用于部署
+    Export a trained model for deployment.
 
-    常用格式:
-      onnx       - 通用推理框架
-      tflite     - 树莓派/移动端 (加 int8=True 量化)
-      torchscript - PyTorch部署
-      ncnn       - 移动端高性能
+    common formats:
+      onnx        - general inference runtime
+      tflite      - Raspberry Pi/mobile deployment (use int8=True for quantization)
+      torchscript - PyTorch deployment
+      ncnn        - high-performance mobile deployment
     """
     print("\n" + "=" * 50)
-    print(f"导出模型为 {export_format.upper()} 格式...")
+    print(f"Exporting model as {export_format.upper()}...")
     model = YOLO(model_path)
 
     if export_format == "tflite":
-        # INT8量化，适合树莓派CPU推理
+        # INT8 quantization is suitable for Raspberry Pi CPU inference.
         path = model.export(format="tflite", int8=True, imgsz=640)
     elif export_format == "onnx":
         path = model.export(format="onnx", dynamic=False, simplify=True)
     else:
         path = model.export(format=export_format)
 
-    print(f"导出完成: {path}")
+    print(f"export complete: {path}")
     return path
 
 
 if __name__ == "__main__":
-    # 如果使用自己的数据集，取消注释并修改以下内容：
-    #
+    # Uncomment this block when using a custom dataset.
     # dataset_yaml = create_dataset_yaml(
     #     train_path="dataset/images/train",
     #     val_path="dataset/images/val",
-    #     class_names=["cat", "dog", "person"],  # 替换为你的类别
+    #     class_names=["cat", "dog", "person"],
     #     save_path="custom_dataset.yaml"
     # )
     # CONFIG["data"] = dataset_yaml
-    # ──────────────────────────────────────────────────────
 
-    # ── 训练 ──────────────────────────────────────────────
+    # Train the model.
     model, save_dir = train(CONFIG)
 
-    # ── 验证 ──────────────────────────────────────────────
+    # Validate the trained model.
     validate(model, CONFIG["data"])
 
-    # ── 推理测试（替换为你的测试图片）──────────────────────
+    #  inference
     # predict(model, source="test.jpg", conf=0.25)
 
-    # ── 导出模型（用于树莓派部署）──────────────────────────
+    # Export the best model for deployment.
     best_model_path = str(save_dir / "weights/best.pt")
     export_model(best_model_path, export_format=CONFIG["export_format"])
 
-    print("\n全部流程完成！")
+    print("\nfull workflow complete")

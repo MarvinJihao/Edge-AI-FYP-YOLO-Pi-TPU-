@@ -4,13 +4,13 @@ v5lite-s.tmfile: [https://drive.google.com/file/d/12HU-lpPxtic5LgbySN7UOY4NqUw0O
 
 ### 10FPS can be used with yolov5-lite on CPU
 
-Excluding the first three warm-ups, the device temperature is stable above 45°, the forward reasoning framework is ncnn, and the two benchmark comparisons are recorded
+Excluding the first three warm-ups, the device temperature is stable above 45, the forward reasoning framework is ncnn, and the two benchmark comparisons are recorded
 
 ![image](./yolov5s-lite_out.jpg)
 
 
 ```
-# 第四次
+#
 xxx@PC:~/Tengine/YOLOv5_Lite_Tengine -m ../weights/yolov5s-lite.tmfile -i ../data/horse.jpg -r 1 -t 1
 tengine-lite library version: 1.5-dev
 Repeat 1 times, thread 1, avg time 111.65 ms, max_time 111.65 ms, min_time 111.65 ms

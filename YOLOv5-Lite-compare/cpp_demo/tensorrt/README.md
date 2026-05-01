@@ -24,4 +24,4 @@ make -j
 ```
 ## 4.Results:
 
-![](E:\星球\yolov5-tensorrt\samples\person_.jpg)
+![](E:\\yolov5-tensorrt\samples\person_.jpg)

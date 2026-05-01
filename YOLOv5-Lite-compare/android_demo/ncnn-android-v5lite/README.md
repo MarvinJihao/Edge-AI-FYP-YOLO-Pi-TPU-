@@ -45,9 +45,9 @@ wget all the *.param and *.bin
 
 <img src="https://pic1.zhimg.com/80/v2-c013df3638fd41d10103ea259b18e588_720w.jpg" width="300"/><br/>
 
-## reference  
+## reference
 https://github.com/nihui/ncnn-android-yolov5
 
-https://github.com/FeiGeChuanShu/ncnn-android-yolox  
+https://github.com/FeiGeChuanShu/ncnn-android-yolox
 
 https://github.com/ppogg/YOLOv5-Lite

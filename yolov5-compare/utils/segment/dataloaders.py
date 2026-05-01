@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# YOLOv5  by Ultralytics, GPL-3.0 license
 """
 Dataloaders
 """
@@ -39,7 +39,7 @@ def create_dataloader(path,
                       mask_downsample_ratio=1,
                       overlap_mask=False):
     if rect and shuffle:
-        LOGGER.warning('WARNING ⚠️ --rect is incompatible with DataLoader shuffle, setting shuffle=False')
+        LOGGER.warning('WARNING  --rect is incompatible with DataLoader shuffle, setting shuffle=False')
         shuffle = False
     with torch_distributed_zero_first(rank):  # init dataset *.cache only once if DDP
         dataset = LoadImagesAndLabelsAndMasks(

@@ -4,10 +4,10 @@ from os import getcwd
 
 sets = ['train', 'test', 'val']
 
-classes = ["person"]  # 我们只检测person这个类别
+classes = ["person"]  # Only the person class is detected
 
 
-def convert(size, box):#对图片进行归一化处理
+def convert(size, box):#normalize image coordinates
     dw = 1. / size[0]
     dh = 1. / size[1]
     x = (box[0] + box[1]) / 2.0

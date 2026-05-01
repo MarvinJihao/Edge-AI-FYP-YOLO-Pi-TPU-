@@ -134,7 +134,7 @@ class Ui_MainWindow(object):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"肠道息肉智能诊断系统", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"", None))
         self.show_img.setText("")
         self.b_import_img.setText(QCoreApplication.translate("MainWindow", u"\u5bfc\u5165\u80a0\u955c\u5f71\u50cf", None))
         self.b_import_video.setText(QCoreApplication.translate("MainWindow", u"\u5bfc\u5165\u80a0\u955c\u89c6\u9891", None))

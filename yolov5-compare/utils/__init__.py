@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# YOLOv5  by Ultralytics, GPL-3.0 license
 """
 utils/initialization
 """
@@ -76,5 +76,5 @@ def notebook_init(verbose=True):
         s = ''
 
     select_device(newline=False)
-    print(emojis(f'Setup complete ✅ {s}'))
+    print(emojis(f'Setup complete  {s}'))
     return display

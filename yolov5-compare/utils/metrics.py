@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# YOLOv5  by Ultralytics, GPL-3.0 license
 """
 Model validation metrics
 """
@@ -186,7 +186,7 @@ class ConfusionMatrix:
         # fn = self.matrix.sum(0) - tp  # false negatives (missed detections)
         return tp[:-1], fp[:-1]  # remove background class
 
-    @TryExcept('WARNING ⚠️ ConfusionMatrix plot failure')
+    @TryExcept('WARNING  ConfusionMatrix plot failure')
     def plot(self, normalize=True, save_dir='', names=()):
         import seaborn as sn
 

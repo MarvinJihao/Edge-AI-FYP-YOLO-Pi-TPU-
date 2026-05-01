@@ -24,27 +24,27 @@ from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import select_device, smart_inference_mode
 
 
-# ═══════════════════════════════════════════════════════════════
-#  性能监控工具
-# ═══════════════════════════════════════════════════════════════
+#
+#  Performance monitoring helpers
+#
 
 def get_memory_usage():
-    """当前进程 RSS 内存 (MB)"""
+    """Return RSS memory usage in MB."""
     return psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
 
 
 def get_cpu_usage():
-    """当前进程 CPU 占用率 (%)"""
+    """Return process CPU usage percentage."""
     return psutil.Process(os.getpid()).cpu_percent(interval=None)
 
 
-# ═══════════════════════════════════════════════════════════════
-#  精度计算工具
-# ═══════════════════════════════════════════════════════════════
+#
+#  Accuracy metric helpers
+#
 
 def load_gt_labels(label_path, img_shape):
     """
-    读取 YOLO 格式 gt label，返回 tensor [N, 5] (cls, x1, y1, x2, y2) 像素坐标
+    Load YOLO ground-truth labels as tensor [N, 5] (cls, x1, y1, x2, y2).
     """
     h, w = img_shape[:2]
     labels = []
@@ -65,10 +65,10 @@ def load_gt_labels(label_path, img_shape):
 
 def compute_metrics_per_image(det, gt, iou_thres=0.5):
     """
-    单张图 TP/FP/FN 统计。
-    det: tensor [M, 6]  (x1,y1,x2,y2, conf, cls) 已映射回原图尺寸
-    gt : tensor [N, 5]  (cls, x1,y1,x2,y2)
-    返回: {cls_id: {'tp', 'fp', 'fn', 'conf_list'}}
+    Compute TP, FP, and FN values for one image.
+    det: tensor [M, 6] (x1, y1, x2, y2, conf, cls)
+    gt : tensor [N, 5] (cls, x1, y1, x2, y2)
+    Returns: {cls_id: {'tp', 'fp', 'fn', 'conf_list'}}
     """
     result = {}
     if len(det) == 0 and len(gt) == 0:
@@ -106,7 +106,7 @@ def compute_metrics_per_image(det, gt, iou_thres=0.5):
             result[pc]['fp'] += 1
             result[pc]['conf_list'].append((conf, 0))
 
-    # 未命中的 GT → FN
+    # Count unmatched ground-truth boxes as false negatives.
     for n in range(len(gt)):
         if not gt_matched[n]:
             gc = gt_cls[n].item()
@@ -128,7 +128,7 @@ def merge_metrics(global_metrics, image_metrics):
 
 
 def compute_ap(conf_list, total_gt):
-    """11-point 插值 AP"""
+    """Compute 11-point interpolation AP."""
     if total_gt == 0 or not conf_list:
         return 0.0
     conf_list = sorted(conf_list, key=lambda x: -x[0])
@@ -150,7 +150,7 @@ def compute_ap(conf_list, total_gt):
 
 def print_metrics_table(global_metrics, names, iou_thres):
     print(f"\n{'=' * 74}")
-    print(f"  精度评估结果  (IoU threshold = {iou_thres})")
+    print(f"  Accuracy evaluation results  (IoU threshold = {iou_thres})")
     print(f"{'=' * 74}")
     print(f"  {'Class':<20} {'TP':>6} {'FP':>6} {'FN':>6} {'Prec':>8} {'Recall':>8} {'F1':>8} {'AP':>8}")
     print(f"  {'-' * 72}")
@@ -178,13 +178,13 @@ def print_metrics_table(global_metrics, names, iou_thres):
     mAP = sum(all_ap) / len(all_ap) if all_ap else 0.0
     print(f"  {'-' * 72}")
     print(
-        f"  {'ALL':<20} {all_tp:>6} {all_fp:>6} {all_fn:>6} {all_prec:>8.3f} {all_recall:>8.3f} {all_f1:>8.3f} {mAP:>8.3f}  ← mAP")
+        f"  {'ALL':<20} {all_tp:>6} {all_fp:>6} {all_fn:>6} {all_prec:>8.3f} {all_recall:>8.3f} {all_f1:>8.3f} {mAP:>8.3f}   mAP")
     print(f"{'=' * 74}\n")
 
 
-# ═══════════════════════════════════════════════════════════════
-#  主推理函数
-# ═══════════════════════════════════════════════════════════════
+#
+#  Main inference function
+#
 
 @smart_inference_mode()
 def run(
@@ -250,19 +250,17 @@ def run(
     # Warmup
     model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))
 
-    # ── 全局统计容器 ──────────────────────────────────────────
+    # Global statistics containers.
     seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
-    all_perf_stats = []  # 性能
-    global_metrics = {}  # 精度
-    get_cpu_usage()  # 预热 cpu_percent 采样
-    # ──────────────────────────────────────────────────────────
+    all_perf_stats = []
+    global_metrics = {}
+    get_cpu_usage()  # warm up cpu_percent
 
     for path, im, im0s, vid_cap, s in dataset:
 
-        # ── 性能：本张图开始 ──────────────────────────────────
+        # Start performance sampling.
         mem_before = get_memory_usage()
         t_img_start = time.perf_counter()
-        # ──────────────────────────────────────────────────────
 
         with dt[0]:
             im = torch.from_numpy(im).to(model.device)
@@ -294,12 +292,11 @@ def run(
             imc = im0.copy() if save_crop else im0
             annotator = Annotator(im0, line_width=line_thickness, example=str(names))
 
-            # ── 精度：读取对应 gt label ───────────────────────
+            # Load matching ground-truth label.
             label_path = str(p).replace(os.sep + 'images' + os.sep,
                                         os.sep + 'labels' + os.sep)
             label_path = os.path.splitext(label_path)[0] + '.txt'
             gt = load_gt_labels(label_path, im0.shape)  # [N,5]
-            # ──────────────────────────────────────────────────
 
             if len(det):
                 det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
@@ -321,14 +318,13 @@ def run(
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / 'crops' / names[int(cls)] / f'{p.stem}.jpg', BGR=True)
 
-            # ── 精度：计算并合并本张图指标 ───────────────────
+            # Compute and merge metrics for this image.
             img_metrics = compute_metrics_per_image(
                 det.cpu() if len(det) else torch.zeros((0, 6)),
                 gt,
                 iou_thres=iou_thres
             )
             merge_metrics(global_metrics, img_metrics)
-            # ──────────────────────────────────────────────────
 
             # Stream / save
             im0 = annotator.result()
@@ -358,13 +354,13 @@ def run(
                         vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
                     vid_writer[i].write(im0)
 
-        # ── 性能：本张图结束，采集并打印 ─────────────────────
+        # Finish performance sampling.
         t_img_end = time.perf_counter()
         mem_after = get_memory_usage()
         cpu_pct = get_cpu_usage()
 
-        pre_ms = dt[0].dt * 1e3  # 预处理
-        infer_ms = dt[1].dt * 1e3  # 纯推理
+        pre_ms = dt[0].dt * 1e3  # preprocess
+        infer_ms = dt[1].dt * 1e3  # inference
         nms_ms = dt[2].dt * 1e3  # NMS
         total_ms = (t_img_end - t_img_start) * 1e3
         mem_delta = mem_after - mem_before
@@ -372,7 +368,7 @@ def run(
         LOGGER.info(
             f"{s}"
             f"| pre: {pre_ms:.1f}ms  infer: {infer_ms:.1f}ms  nms: {nms_ms:.1f}ms  total: {total_ms:.1f}ms "
-            f"| mem: {mem_after:.1f}MB (Δ{mem_delta:+.1f}MB) "
+            f"| mem: {mem_after:.1f}MB ({mem_delta:+.1f}MB) "
             f"| cpu: {cpu_pct:.1f}%"
         )
         all_perf_stats.append({
@@ -384,9 +380,8 @@ def run(
             'mem_delta': mem_delta,
             'cpu_pct': cpu_pct,
         })
-        # ──────────────────────────────────────────────────────
 
-    # ── 汇总性能 ──────────────────────────────────────────────
+    # Performance summary.
     if all_perf_stats:
         n = len(all_perf_stats)
 
@@ -396,18 +391,16 @@ def run(
         LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
         LOGGER.info(
             f"\n{'=' * 60}\n"
-            f"  共处理 {n} 张  总推理统计 (均值/张):\n"
-            f"  预处理: {avg('pre_ms'):.1f}ms  推理: {avg('infer_ms'):.1f}ms  "
-            f"NMS: {avg('nms_ms'):.1f}ms  端到端: {avg('total_ms'):.1f}ms\n"
-            f"  内存: {avg('mem_mb'):.1f}MB  CPU: {avg('cpu_pct'):.1f}%\n"
+            f"  Processed {n} images   average inference timing:\n"
+            f"  preprocess: {avg('pre_ms'):.1f}ms  inference: {avg('infer_ms'):.1f}ms  "
+            f"NMS: {avg('nms_ms'):.1f}ms  end-to-end: {avg('total_ms'):.1f}ms\n"
+            f"  memory: {avg('mem_mb'):.1f}MB  CPU: {avg('cpu_pct'):.1f}%\n"
             f"{'=' * 60}"
         )
-    # ──────────────────────────────────────────────────────────
 
-    # ── 汇总精度 ──────────────────────────────────────────────
+    # Accuracy summary.
     if global_metrics:
         print_metrics_table(global_metrics, names, iou_thres)
-    # ──────────────────────────────────────────────────────────
 
     if save_txt or save_img:
         s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''

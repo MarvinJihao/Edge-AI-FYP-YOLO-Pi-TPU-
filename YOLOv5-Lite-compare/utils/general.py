@@ -82,10 +82,10 @@ def check_git_status():
         branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True).decode().strip()  # checked out
         n = int(subprocess.check_output(f'git rev-list {branch}..origin/master --count', shell=True))  # commits behind
         if n > 0:
-            s = f"⚠️ WARNING: code is out of date by {n} commit{'s' * (n > 1)}. " \
+            s = f" WARNING: code is out of date by {n} commit{'s' * (n > 1)}. " \
                 f"Use 'git pull' to update or 'git clone {url}' to download latest."
         else:
-            s = f'up to date with {url} ✅'
+            s = f'up to date with {url} '
         print(emojis(s))  # emoji-safe
     except Exception as e:
         print(e)
@@ -116,7 +116,7 @@ def check_requirements(requirements='requirements.txt', exclude=()):
     if n:  # if packages updated
         source = file.resolve() if 'file' in locals() else requirements
         s = f"{prefix} {n} package{'s' * (n > 1)} updated per {source}\n" \
-            f"{prefix} ⚠️ {colorstr('bold', 'Restart runtime or rerun command for updates to take effect')}\n"
+            f"{prefix}  {colorstr('bold', 'Restart runtime or rerun command for updates to take effect')}\n"
         print(emojis(s))  # emoji-safe
 
 
@@ -180,7 +180,7 @@ def make_divisible(x, divisor):
 
 def clean_str(s):
     # Cleans a string by replacing special characters with underscore _
-    return re.sub(pattern="[|@#!¡·$€%&()=?¿^*;:,¨´><+]", repl="_", string=s)
+    return re.sub(pattern="[|@#!$%&()=?^*;:,><+]", repl="_", string=s)
 
 
 def one_cycle(y1=0.0, y2=1.0, steps=100):

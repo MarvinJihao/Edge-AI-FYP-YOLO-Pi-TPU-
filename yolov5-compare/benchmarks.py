@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# YOLOv5  by Ultralytics, GPL-3.0 license
 """
 Run YOLOv5 benchmarks on all supported export formats
 
@@ -91,7 +91,7 @@ def run(
         except Exception as e:
             if hard_fail:
                 assert type(e) is AssertionError, f'Benchmark --hard-fail for {name}: {e}'
-            LOGGER.warning(f'WARNING ⚠️ Benchmark failure for {name}: {e}')
+            LOGGER.warning(f'WARNING  Benchmark failure for {name}: {e}')
             y.append([name, None, None, None])  # mAP, t_inference
         if pt_only and i == 0:
             break  # break after PyTorch

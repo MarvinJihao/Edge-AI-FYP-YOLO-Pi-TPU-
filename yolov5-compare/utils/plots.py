@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# YOLOv5  by Ultralytics, GPL-3.0 license
 """
 Plotting utils
 """
@@ -460,7 +460,7 @@ def imshow_cls(im, labels=None, pred=None, names=None, nmax=25, verbose=False, f
         ax[i].imshow(blocks[i].squeeze().permute((1, 2, 0)).numpy().clip(0.0, 1.0))
         ax[i].axis('off')
         if labels is not None:
-            s = names[labels[i]] + (f'—{names[pred[i]]}' if pred is not None else '')
+            s = names[labels[i]] + (f'{names[pred[i]]}' if pred is not None else '')
             ax[i].set_title(s, fontsize=8, verticalalignment='top')
     plt.savefig(f, dpi=300, bbox_inches='tight')
     plt.close()

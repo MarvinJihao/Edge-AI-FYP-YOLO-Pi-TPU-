@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# YOLOv5  by Ultralytics, GPL-3.0 license
 """
 Export a YOLOv5 PyTorch model to other formats. TensorFlow exports authored by https://github.com/zldrobit
 
@@ -104,10 +104,10 @@ def try_export(inner_func):
         try:
             with Profile() as dt:
                 f, model = inner_func(*args, **kwargs)
-            LOGGER.info(f'{prefix} export success ✅ {dt.t:.1f}s, saved as {f} ({file_size(f):.1f} MB)')
+            LOGGER.info(f'{prefix} export success  {dt.t:.1f}s, saved as {f} ({file_size(f):.1f} MB)')
             return f, model
         except Exception as e:
-            LOGGER.info(f'{prefix} export failure ❌ {dt.t:.1f}s: {e}')
+            LOGGER.info(f'{prefix} export failure  {dt.t:.1f}s: {e}')
             return None, None
 
     return outer_func
@@ -286,7 +286,7 @@ def export_engine(model, im, file, half, dynamic, simplify, workspace=4, verbose
 
     if dynamic:
         if im.shape[0] <= 1:
-            LOGGER.warning(f"{prefix} WARNING ⚠️ --dynamic model requires maximum --batch-size argument")
+            LOGGER.warning(f"{prefix} WARNING  --dynamic model requires maximum --batch-size argument")
         profile = builder.create_optimization_profile()
         for inp in inputs:
             profile.set_shape(inp.name, (1, *im.shape[1:]), (max(1, im.shape[0] // 2), *im.shape[1:]), im.shape)
@@ -598,8 +598,8 @@ def run(
         cls, det, seg = (isinstance(model, x) for x in (ClassificationModel, DetectionModel, SegmentationModel))  # type
         dir = Path('segment' if seg else 'classify' if cls else '')
         h = '--half' if half else ''  # --half FP16 inference arg
-        s = "# WARNING ⚠️ ClassificationModel not yet supported for PyTorch Hub AutoShape inference" if cls else \
-            "# WARNING ⚠️ SegmentationModel not yet supported for PyTorch Hub AutoShape inference" if seg else ''
+        s = "# WARNING  ClassificationModel not yet supported for PyTorch Hub AutoShape inference" if cls else \
+            "# WARNING  SegmentationModel not yet supported for PyTorch Hub AutoShape inference" if seg else ''
         LOGGER.info(f'\nExport complete ({time.time() - t:.1f}s)'
                     f"\nResults saved to {colorstr('bold', file.parent.resolve())}"
                     f"\nDetect:          python {dir / ('detect.py' if det else 'predict.py')} --weights {f[-1]} {h}"

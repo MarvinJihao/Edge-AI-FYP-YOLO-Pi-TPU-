@@ -83,7 +83,7 @@ std::vector<std::string>readFolder(const std::string &image_path)
     return image_names;
 }
 
-// 读取TensorRT Engine函数
+// Read TensorRT engine function.
 bool readTrtFile(const std::string &engineFile, //name of the engine file
                  nvinfer1::ICudaEngine *&engine)
 {
@@ -112,13 +112,15 @@ bool readTrtFile(const std::string &engineFile, //name of the engine file
     return true;
 }
 
-// onnx 转化为 TensorRT Engine 的函数
+// Convert ONNX to TensorRT engine.
 void onnxToTRTModel(const std::string &modelFile, // name of the onnx model
                     const std::string &filename,  // name of saved engine
                     nvinfer1::ICudaEngine *&engine, const int &BATCH_SIZE)
 {
     // create the builder
-    // builder：构建器，搜索cuda内核目录以获得最快的可用实现，必须使用和运行时的GPU相同的GPU来构建优化引擎。在构建引擎时，TensorRT会复制权重。
+    // Builder searches CUDA kernels for the fastest available implementation.
+    // Build the optimized engine on the same GPU that will run inference.
+    // TensorRT copies the weights while building the engine.
     nvinfer1::IBuilder *builder = nvinfer1::createInferBuilder(gLogger.getTRTLogger());
     assert(builder != nullptr);
 

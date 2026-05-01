@@ -112,26 +112,24 @@ def post_process_opencv(outputs, model_h, model_w, img_h, img_w, thred_nms, thre
 
 
 def infer_img(img0, net, model_h, model_w, nl, na, stride, anchor_grid, thred_nms=0.4, thred_cond=0.5):
-    # 图像预处理
+    # Preprocess the image for ONNX inference.
     img = cv2.resize(img0, dsize=(model_w, model_h), interpolation=cv2.INTER_AREA)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = img.astype(np.float32) / 255.0
     blob = np.expand_dims(np.transpose(img, (2, 0, 1)), axis=0)
-    # 模型推理
+    # Run model inference and convert outputs back to image coordinates.
     outs = net.run(None, {net.get_inputs()[0].name: blob})[0].squeeze(axis=0)
-    # 输出坐标矫正
     outs = cal_outputs(outs, nl, na, model_w, model_h, anchor_grid, stride)
-    # 检测框计算
     img_h, img_w, _ = np.shape(img0)
     boxes, confs, ids = post_process_opencv(outs, model_h, model_w, img_h, img_w, thred_nms, thred_cond)
     return boxes, confs, ids
 
 
-# 定义MainWindow类
+# MainWindow
 class MainWindow(QTabWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('老人摔倒检测系统')
+        self.setWindowTitle('Elderly Fall Detection System')
         self.resize(1200, 700)
         #self.setWindowIcon(QIcon("images/UI/lufei.png"))
         self.setWindowIcon(QPixmap("images/UI/lufei.png"))
@@ -147,14 +145,13 @@ class MainWindow(QTabWidget):
         self.reset_vid()
 
     def model_load(self):
-        # 模型加载部分...
-        # 模型加载
+        # Load the ONNX detection model.
         model_pb_path = "./best.onnx"
         so = ort.SessionOptions()
         self.net = ort.InferenceSession(model_pb_path, so)
 
 
-        # 模型参数
+        # Model input settings.
         self.model_h = 640
         self.model_w = 640
         self.nl = 3
@@ -166,14 +163,13 @@ class MainWindow(QTabWidget):
 
 
     def initUI(self):
-        # 界面初始化部分...
-        # 图片检测子界面
-        font_title = QFont('楷体', 16)
-        font_main = QFont('楷体', 14)
-        # 图片识别界面, 两个按钮，上传图片和显示结果
+        font_title = QFont('Arial', 16)
+        font_main = QFont('Arial', 14)
+
+        # Image detection tab.
         img_detection_widget = QWidget()
         img_detection_layout = QVBoxLayout()
-        img_detection_title = QLabel("图片检测功能")
+        img_detection_title = QLabel("Image Detection")
         img_detection_title.setFont(font_title)
         mid_img_widget = QWidget()
         mid_img_layout = QHBoxLayout()
@@ -187,8 +183,8 @@ class MainWindow(QTabWidget):
         mid_img_layout.addStretch(0)
         mid_img_layout.addWidget(self.right_img)
         mid_img_widget.setLayout(mid_img_layout)
-        up_img_button = QPushButton("上传图片")
-        det_img_button = QPushButton("开始检测")
+        up_img_button = QPushButton("Upload Image")
+        det_img_button = QPushButton("Start Detection")
         up_img_button.clicked.connect(self.upload_img)
         det_img_button.clicked.connect(self.detect_img)
         up_img_button.setFont(font_main)
@@ -213,19 +209,18 @@ class MainWindow(QTabWidget):
         img_detection_layout.addWidget(det_img_button)
         img_detection_widget.setLayout(img_detection_layout)
 
-        # todo 视频识别界面
-        # 视频识别界面的逻辑比较简单，基本就从上到下的逻辑
+        # Video detection tab.
         vid_detection_widget = QWidget()
         vid_detection_layout = QVBoxLayout()
-        vid_title = QLabel("视频检测功能")
+        vid_title = QLabel("Video Detection")
         vid_title.setFont(font_title)
         self.vid_img = QLabel()
         self.vid_img.setPixmap(QPixmap("images/UI/up.jpeg"))
         vid_title.setAlignment(Qt.AlignCenter)
         self.vid_img.setAlignment(Qt.AlignCenter)
-        self.webcam_detection_btn = QPushButton("摄像头实时监测")
-        self.mp4_detection_btn = QPushButton("视频文件检测")
-        self.vid_stop_btn = QPushButton("停止检测")
+        self.webcam_detection_btn = QPushButton("Webcam Detection")
+        self.mp4_detection_btn = QPushButton("Video File Detection")
+        self.vid_stop_btn = QPushButton("Stop Detection")
         self.webcam_detection_btn.setFont(font_main)
         self.mp4_detection_btn.setFont(font_main)
         self.vid_stop_btn.setFont(font_main)
@@ -253,7 +248,7 @@ class MainWindow(QTabWidget):
         self.webcam_detection_btn.clicked.connect(self.open_cam)
         self.mp4_detection_btn.clicked.connect(self.open_mp4)
         self.vid_stop_btn.clicked.connect(self.close_vid)
-        # 添加组件到布局上
+
         vid_detection_layout.addWidget(vid_title)
         vid_detection_layout.addWidget(self.vid_img)
         vid_detection_layout.addWidget(self.webcam_detection_btn)
@@ -262,21 +257,21 @@ class MainWindow(QTabWidget):
         vid_detection_widget.setLayout(vid_detection_layout)
 
         self.left_img.setAlignment(Qt.AlignCenter)
-        self.addTab(img_detection_widget, '图片检测')
-        self.addTab(vid_detection_widget, '视频检测')
+        self.addTab(img_detection_widget, 'Image Detection')
+        self.addTab(vid_detection_widget, 'Video Detection')
 
     '''
-       ***上传图片***
+       ***Upload Image***
        '''
 
     def upload_img(self):
-        # 选择录像文件进行读取
         fileName, fileType = QFileDialog.getOpenFileName(self, 'Choose file', '', '*.jpg *.png *.tif *.jpeg')
         if fileName:
             suffix = fileName.split(".")[-1]
             save_path = osp.join("images/tmp", "tmp_upload." + suffix)
             shutil.copy(fileName, save_path)
-            # 应该调整一下图片的大小，然后统一防在一起
+
+            # Resize the uploaded image for display in the UI.
             im0 = cv2.imread(save_path)
             resize_scale = self.output_size / im0.shape[0]
             im0 = cv2.resize(im0, (0, 0), fx=resize_scale, fy=resize_scale)
@@ -284,24 +279,21 @@ class MainWindow(QTabWidget):
             # self.right_img.setPixmap(QPixmap("images/tmp/single_result.jpg"))
             self.img2predict = fileName
             self.left_img.setPixmap(QPixmap("images/tmp/upload_show_result.jpg"))
-            # todo 上传图片之后右侧的图片重置，
+            # Reset the result preview after a new upload.
             self.right_img.setPixmap(QPixmap("images/UI/right.jpeg"))
 
-    def cv2AddChineseText(self, img, text, position, textColor=(0, 255, 0), textSize=30):
-        if (isinstance(img, np.ndarray)):  # 判断是否OpenCV图片类型
+    def cv2_add_text(self, img, text, position, textColor=(0, 255, 0), textSize=30):
+        if (isinstance(img, np.ndarray)):
             img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-        # 创建一个可以在给定图像上绘图的对象
         draw = ImageDraw.Draw(img)
-        # 字体的格式
         fontStyle = ImageFont.truetype(
             "simsun.ttc", textSize, encoding="utf-8")
-        # 绘制文本
         draw.text(position, text, textColor, font=fontStyle)
-        # 转换回OpenCV格式
+        # Convert back to OpenCV BGR format.
         return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
     '''
-    ***检测图片***
+    ***Detect Image***
     '''
 
     def detect_img(self):
@@ -317,19 +309,16 @@ class MainWindow(QTabWidget):
         resize_scale = self.output_size / img0.shape[0]
         im0 = cv2.resize(img0, (0, 0), fx=resize_scale, fy=resize_scale)
         cv2.imwrite("images/tmp/single_result.jpg", im0)
-        # 目前的情况来看，应该只是ubuntu下会出问题，但是在windows下是完整的，所以继续
         self.right_img.setPixmap(QPixmap("images/tmp/single_result.jpg"))
 
-    # 视频检测，逻辑基本一致，有两个功能，分别是检测摄像头的功能和检测视频文件的功能，先做检测摄像头的功能。
-
     '''
-    ### 界面关闭事件 ### 
+    ### Close Window Event ###
     '''
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self,
-                                     '退出',
-                                     "你确定要退出 ?",
+                                     'Exit',
+                                     "Exit ?",
                                      QMessageBox.Yes | QMessageBox.No,
                                      QMessageBox.No)
         if reply == QMessageBox.Yes:
@@ -341,7 +330,7 @@ class MainWindow(QTabWidget):
             event.ignore()
 
     '''
-    ### 视频关闭事件 ### 
+    ### Open Webcam Event ###
     '''
 
     def open_cam(self):
@@ -354,7 +343,7 @@ class MainWindow(QTabWidget):
         th.start()
 
     '''
-    ### 开启视频文件检测事件 ### 
+    ### Video File Detection ###
     '''
 
     def open_mp4(self):
@@ -369,10 +358,10 @@ class MainWindow(QTabWidget):
             th.start()
 
     '''
-    ### 视频开启事件 ### 
+    ### Video Detection Event ###
     '''
 
-    # 视频和摄像头的主函数是一样的，不过是传入的source不同罢了
+    # The webcam and video-file flows share the same detection loop.
     def detect_vid(self):
 
         source = str(self.vid_source)
@@ -426,7 +415,7 @@ class MainWindow(QTabWidget):
         cap.release()
 
     '''
-    ### 界面重置事件 ### 
+    ### Reset Video View ###
     '''
 
     def reset_vid(self):
@@ -437,7 +426,7 @@ class MainWindow(QTabWidget):
         self.webcam = True
 
     '''
-    ### 视频重置事件 ### 
+    ### Stop Video Detection ###
     '''
 
     def close_vid(self):
@@ -445,7 +434,7 @@ class MainWindow(QTabWidget):
         self.reset_vid()
 
 
-# 主程序入口
+# Main program entry point.
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     mainWindow = MainWindow()

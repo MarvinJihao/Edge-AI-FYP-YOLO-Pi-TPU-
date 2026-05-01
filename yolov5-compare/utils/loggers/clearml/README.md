@@ -4,17 +4,17 @@
 
 ## About ClearML
 
-[ClearML](https://cutt.ly/yolov5-tutorial-clearml) is an [open-source](https://github.com/allegroai/clearml) toolbox designed to save you time ⏱️.
+[ClearML](https://cutt.ly/yolov5-tutorial-clearml) is an [open-source](https://github.com/allegroai/clearml) toolbox designed to save you time .
 
-🔨 Track every YOLOv5 training run in the <b>experiment manager</b>
+ Track every YOLOv5 training run in the <b>experiment manager</b>
 
-🔧 Version and easily access your custom training data with the integrated ClearML <b>Data Versioning Tool</b>
+ Version and easily access your custom training data with the integrated ClearML <b>Data Versioning Tool</b>
 
-🔦 <b>Remotely train and monitor</b> your YOLOv5 training runs using ClearML Agent
+ <b>Remotely train and monitor</b> your YOLOv5 training runs using ClearML Agent
 
-🔬 Get the very best mAP using ClearML <b>Hyperparameter Optimization</b>
+ Get the very best mAP using ClearML <b>Hyperparameter Optimization</b>
 
-🔭 Turn your newly trained <b>YOLOv5 model into an API</b> with just a few commands using ClearML Serving
+ Turn your newly trained <b>YOLOv5 model into an API</b> with just a few commands using ClearML Serving
 
 <br />
 And so much more. It's up to you how many of these tools you want to use, you can stick to the experiment manager, or chain them all together into an impressive pipeline!
@@ -27,7 +27,7 @@ And so much more. It's up to you how many of these tools you want to use, you ca
 <br />
 <br />
 
-## 🦾 Setting Things Up
+##  Setting Things Up
 
 To keep track of your experiments and/or data, ClearML needs to communicate to a server. You have 2 options to get one:
 
@@ -45,11 +45,11 @@ Either sign up for free to the [ClearML Hosted Service](https://cutt.ly/yolov5-t
     clearml-init
     ```
 
-That's it! You're done 😎
+That's it! You're done
 
 <br />
 
-## 🚀 Training YOLOv5 With ClearML
+##  Training YOLOv5 With ClearML
 
 To enable ClearML experiment tracking, simply install the ClearML pip package.
 
@@ -85,14 +85,14 @@ This will capture:
 - Validation images per epoch
 - ...
 
-That's a lot right? 🤯
+That's a lot right?
 Now, we can visualize all of this information in the ClearML UI to get an overview of our training progress. Add custom columns to the table view (such as e.g. mAP_0.5) so you can easily sort on the best performing model. Or select multiple experiments and directly compare them!
 
 There even more we can do with all of this information, like hyperparameter optimization and remote execution, so keep reading if you want to see how that works!
 
 <br />
 
-## 🔗 Dataset Version Management
+##  Dataset Version Management
 
 Versioning your data separately from your code is generally a good idea and makes it easy to aqcuire the latest version too. This repository supports supplying a dataset version ID and it will make sure to get the data if it's not there yet. Next to that, this workflow also saves the used dataset ID as part of the task parameters, so you will always know for sure which data was used in which experiment!
 
@@ -114,7 +114,7 @@ The YOLOv5 repository supports a number of different datasets by using yaml file
 ```
 But this can be any dataset you wish. Feel free to use your own, as long as you keep to this folder structure.
 
-Next, ⚠️**copy the corresponding yaml file to the root of the dataset folder**⚠️. This yaml files contains the information ClearML will need to properly use the dataset. You can make this yourself too, of course, just follow the structure of the example yamls.
+Next, **copy the corresponding yaml file to the root of the dataset folder**. This yaml files contains the information ClearML will need to properly use the dataset. You can make this yourself too, of course, just follow the structure of the example yamls.
 
 Basically we need the following keys: `path`, `train`, `test`, `val`, `nc`, `names`.
 
@@ -149,7 +149,7 @@ clearml-data close
 
 ### Run Training Using A ClearML Dataset
 
-Now that you have a ClearML dataset, you can very simply use it to train custom YOLOv5 🚀 models!
+Now that you have a ClearML dataset, you can very simply use it to train custom YOLOv5  models!
 
 ```bash
 python train.py --img 640 --batch 16 --epochs 3 --data clearml://<your_dataset_id> --weights yolov5s.pt --cache
@@ -157,7 +157,7 @@ python train.py --img 640 --batch 16 --epochs 3 --data clearml://<your_dataset_i
 
 <br />
 
-## 👀 Hyperparameter Optimization
+##  Hyperparameter Optimization
 
 Now that we have our experiments and data versioned, it's time to take a look at what we can build on top!
 
@@ -175,7 +175,7 @@ python utils/loggers/clearml/hpo.py
 
 ![HPO](https://github.com/thepycoder/clearml_screenshots/raw/main/hpo.png)
 
-## 🤯 Remote Execution (advanced)
+##  Remote Execution (advanced)
 
 Running HPO locally is really handy, but what if we want to run our experiments on a remote machine instead? Maybe you have access to a very powerful GPU machine on-site or you have some budget to use cloud GPUs.
 This is where the ClearML Agent comes into play. Check out what the agent can do here:
@@ -194,11 +194,11 @@ clearml-agent daemon --queue <queues_to_listen_to> [--docker]
 
 With our agent running, we can give it some work. Remember from the HPO section that we can clone a task and edit the hyperparameters? We can do that from the interface too!
 
-🪄 Clone the experiment by right clicking it
+ Clone the experiment by right clicking it
 
-🎯 Edit the hyperparameters to what you wish them to be
+ Edit the hyperparameters to what you wish them to be
 
-⏳ Enqueue the task to any of the queues by right clicking it
+ Enqueue the task to any of the queues by right clicking it
 
 ![Enqueue a task from the UI](https://github.com/thepycoder/clearml_screenshots/raw/main/enqueue.gif)
 

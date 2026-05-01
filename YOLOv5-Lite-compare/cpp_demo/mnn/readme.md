@@ -14,21 +14,21 @@ baidu share: [https://pan.baidu.com/s/1V7LVt7AxyG7HjlCJJoOJ3A?pwd=pogg](https://
 
 ## Detection effect
 
-Pytorch{320×320}：
+Pytorch{320320}
 
 <img src="https://github.com/ppogg/YOLOv5-Lite/assets/82716366/3ad8cb35-0a2e-4edf-af6c-ff0cf946f355" width="640" height="480"/><br/>
 
-onnx{check fp32}@{320×320}:
+onnx{check fp32}@{320320}:
 
 <img src="https://github.com/ppogg/YOLOv5-Lite/assets/82716366/66a0f7e2-aaa2-4597-a419-10a193c19015" width="640" height="640"/><br/>
 
-MNN{fp32}@{320×320}:
+MNN{fp32}@{320320}:
 
 <img src="https://github.com/ppogg/YOLOv5-Lite/assets/82716366/7ab98964-05d4-42d0-a011-c464b457955d" width="640" height="480"/><br/>
 
 ### 15FPS can be used with yolov5 on the Raspberry Pi with only 0.1T computing power
 
-#### Excluding the three minute warm-ups, the device temperature is stable above 65°, the forward reasoning framework is mnn
+#### Excluding the three minute warm-ups, the device temperature is stable above 65, the forward reasoning framework is mnn
 
 Show picture infer result (include imread - preprocess - network forward - postprocess - imwrite):
 

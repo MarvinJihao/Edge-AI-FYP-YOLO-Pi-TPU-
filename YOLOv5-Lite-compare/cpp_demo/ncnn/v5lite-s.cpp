@@ -456,7 +456,7 @@ static void draw_objects(const cv::Mat& bgr, const std::vector<Object>& objects)
                     cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0));
     }
 #if USE_CAMERA
-    imshow("外接摄像头", image);
+        imshow("External Camera", image);
     cv::waitKey(1);
 #else
     cv::imwrite("result.jpg", image);
@@ -467,7 +467,7 @@ static void draw_objects(const cv::Mat& bgr, const std::vector<Object>& objects)
 int main(int argc, char** argv)
 {
     cv::VideoCapture capture;
-    capture.open(0);  //修改这个参数可以选择打开想要用的摄像头
+    capture.open(0);  // Change this value to choose the camera device.
 
     cv::Mat frame;
     while (true)

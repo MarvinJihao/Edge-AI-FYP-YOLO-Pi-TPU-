@@ -27,7 +27,7 @@ def parse_odgt(base_dir, save_prepend, fname):
             cur_imname = s_det.get('ID') + '.jpg'
             fname = "#" + save_prepend + cur_imname
             out_list.append(fname)
-#             cur_boxes = [gt_box['hbox'] for gt_box in s_det['gtboxes'] 
+#             cur_boxes = [gt_box['hbox'] for gt_box in s_det['gtboxes']
 #                             if bool(gt_box.get('head_attr', None))]
             for gt_box in s_det['gtboxes']:
                 ignore_label = 0
@@ -46,7 +46,7 @@ def parse_odgt(base_dir, save_prepend, fname):
                 new_coord = [startX, startY, endX, endY, ignore_label]
                 new_line = " ".join(str(x) for x in new_coord)
                 out_list.append(new_line)
-                
+
     return out_list
 
 def write_out(out_file, lines):

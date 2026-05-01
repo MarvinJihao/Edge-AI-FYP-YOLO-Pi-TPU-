@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# YOLOv5  by Ultralytics, GPL-3.0 license
 """
 General utils
 """
@@ -66,7 +66,7 @@ def is_ascii(s=''):
     return len(s.encode().decode('ascii', 'ignore')) == len(s)
 
 
-def is_chinese(s='人工智能'):
+def is_chinese(s='artificial intelligence'):
     # Is string composed of any Chinese characters?
     return bool(re.search('[\u4e00-\u9fff]', str(s)))
 
@@ -337,9 +337,9 @@ def check_git_status(repo='ultralytics/yolov5', branch='master'):
     n = int(check_output(f'git rev-list {local_branch}..{remote}/{branch} --count', shell=True))  # commits behind
     if n > 0:
         pull = 'git pull' if remote == 'origin' else f'git pull {remote} {branch}'
-        s += f"⚠️ YOLOv5 is out of date by {n} commit{'s' * (n > 1)}. Use `{pull}` or `git clone {url}` to update."
+        s += f" YOLOv5 is out of date by {n} commit{'s' * (n > 1)}. Use `{pull}` or `git clone {url}` to update."
     else:
-        s += f'up to date with {url} ✅'
+        s += f'up to date with {url} '
     LOGGER.info(s)
 
 
@@ -370,7 +370,7 @@ def check_version(current='0.0.0', minimum='0.0.0', name='version ', pinned=Fals
     # Check version vs. required version
     current, minimum = (pkg.parse_version(x) for x in (current, minimum))
     result = (current == minimum) if pinned else (current >= minimum)  # bool
-    s = f'WARNING ⚠️ {name}{minimum} is required by YOLOv5, but {name}{current} is currently installed'  # string
+    s = f'WARNING  {name}{minimum} is required by YOLOv5, but {name}{current} is currently installed'  # string
     if hard:
         assert result, emojis(s)  # assert min requirements met
     if verbose and not result:
@@ -407,10 +407,10 @@ def check_requirements(requirements=ROOT / 'requirements.txt', exclude=(), insta
             LOGGER.info(check_output(f'pip install {s} {cmds}', shell=True).decode())
             source = file if 'file' in locals() else requirements
             s = f"{prefix} {n} package{'s' * (n > 1)} updated per {source}\n" \
-                f"{prefix} ⚠️ {colorstr('bold', 'Restart runtime or rerun command for updates to take effect')}\n"
+                f"{prefix}  {colorstr('bold', 'Restart runtime or rerun command for updates to take effect')}\n"
             LOGGER.info(s)
         except Exception as e:
-            LOGGER.warning(f'{prefix} ❌ {e}')
+            LOGGER.warning(f'{prefix}  {e}')
 
 
 def check_img_size(imgsz, s=32, floor=0):
@@ -421,7 +421,7 @@ def check_img_size(imgsz, s=32, floor=0):
         imgsz = list(imgsz)  # convert to list if tuple
         new_size = [max(make_divisible(x, int(s)), floor) for x in imgsz]
     if new_size != imgsz:
-        LOGGER.warning(f'WARNING ⚠️ --img-size {imgsz} must be multiple of max stride {s}, updating to {new_size}')
+        LOGGER.warning(f'WARNING  --img-size {imgsz} must be multiple of max stride {s}, updating to {new_size}')
     return new_size
 
 
@@ -437,7 +437,7 @@ def check_imshow(warn=False):
         return True
     except Exception as e:
         if warn:
-            LOGGER.warning(f'WARNING ⚠️ Environment does not support cv2.imshow() or PIL Image.show()\n{e}')
+            LOGGER.warning(f'WARNING  Environment does not support cv2.imshow() or PIL Image.show()\n{e}')
         return False
 
 
@@ -511,7 +511,7 @@ def check_dataset(data, autodownload=True):
 
     # Checks
     for k in 'train', 'val', 'names':
-        assert k in data, emojis(f"data.yaml '{k}:' field missing ❌")
+        assert k in data, emojis(f"data.yaml '{k}:' field missing ")
     if isinstance(data['names'], (list, tuple)):  # old array format
         data['names'] = dict(enumerate(data['names']))  # convert to dict
     assert all(isinstance(k, int) for k in data['names'].keys()), 'data.yaml names keys must be integers, i.e. 2: car'
@@ -537,9 +537,9 @@ def check_dataset(data, autodownload=True):
     if val:
         val = [Path(x).resolve() for x in (val if isinstance(val, list) else [val])]  # val path
         if not all(x.exists() for x in val):
-            LOGGER.info('\nDataset not found ⚠️, missing paths %s' % [str(x) for x in val if not x.exists()])
+            LOGGER.info('\nDataset not found , missing paths %s' % [str(x) for x in val if not x.exists()])
             if not s or not autodownload:
-                raise Exception('Dataset not found ❌')
+                raise Exception('Dataset not found ')
             t = time.time()
             if s.startswith('http') and s.endswith('.zip'):  # URL
                 f = Path(s).name  # filename
@@ -555,7 +555,7 @@ def check_dataset(data, autodownload=True):
             else:  # python script
                 r = exec(s, {'yaml': data})  # return None
             dt = f'({round(time.time() - t, 1)}s)'
-            s = f"success ✅ {dt}, saved to {colorstr('bold', DATASETS_DIR)}" if r in (0, None) else f"failure {dt} ❌"
+            s = f"success  {dt}, saved to {colorstr('bold', DATASETS_DIR)}" if r in (0, None) else f"failure {dt} "
             LOGGER.info(f"Dataset download {s}")
     check_font('Arial.ttf' if is_ascii(data['names']) else 'Arial.Unicode.ttf', progress=True)  # download fonts
     return data  # dictionary
@@ -581,11 +581,11 @@ def check_amp(model):
     im = f if f.exists() else 'https://ultralytics.com/images/bus.jpg' if check_online() else np.ones((640, 640, 3))
     try:
         assert amp_allclose(deepcopy(model), im) or amp_allclose(DetectMultiBackend('yolov5n.pt', device), im)
-        LOGGER.info(f'{prefix}checks passed ✅')
+        LOGGER.info(f'{prefix}checks passed ')
         return True
     except Exception:
         help_url = 'https://github.com/ultralytics/yolov5/issues/7908'
-        LOGGER.warning(f'{prefix}checks failed ❌, disabling Automatic Mixed Precision. See {help_url}')
+        LOGGER.warning(f'{prefix}checks failed , disabling Automatic Mixed Precision. See {help_url}')
         return False
 
 
@@ -639,9 +639,9 @@ def download(url, dir='.', unzip=True, delete=True, curl=False, threads=1, retry
                 if success:
                     break
                 elif i < retry:
-                    LOGGER.warning(f'⚠️ Download failure, retrying {i + 1}/{retry} {url}...')
+                    LOGGER.warning(f' Download failure, retrying {i + 1}/{retry} {url}...')
                 else:
-                    LOGGER.warning(f'❌ Failed to download {url}...')
+                    LOGGER.warning(f' Failed to download {url}...')
 
         if unzip and success and (f.suffix == '.gz' or is_zipfile(f) or is_tarfile(f)):
             LOGGER.info(f'Unzipping {f}...')
@@ -675,7 +675,7 @@ def make_divisible(x, divisor):
 
 def clean_str(s):
     # Cleans a string by replacing special characters with underscore _
-    return re.sub(pattern="[|@#!¡·$€%&()=?¿^*;:,¨´><+]", repl="_", string=s)
+    return re.sub(pattern="[|@#!$%&()=?^*;:,><+]", repl="_", string=s)
 
 
 def one_cycle(y1=0.0, y2=1.0, steps=100):
@@ -993,7 +993,7 @@ def non_max_suppression(
         if mps:
             output[xi] = output[xi].to(device)
         if (time.time() - t) > time_limit:
-            LOGGER.warning(f'WARNING ⚠️ NMS time limit {time_limit:.3f}s exceeded')
+            LOGGER.warning(f'WARNING  NMS time limit {time_limit:.3f}s exceeded')
             break  # time limit exceeded
 
     return output

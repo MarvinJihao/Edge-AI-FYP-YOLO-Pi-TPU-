@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# YOLOv5  by Ultralytics, GPL-3.0 license
 """
 Train a YOLOv5 classifier model on a classification dataset
 
@@ -75,14 +75,14 @@ def train(opt, device):
     with torch_distributed_zero_first(LOCAL_RANK), WorkingDirectory(ROOT):
         data_dir = data if data.is_dir() else (DATASETS_DIR / data)
         if not data_dir.is_dir():
-            LOGGER.info(f'\nDataset not found ⚠️, missing path {data_dir}, attempting download...')
+            LOGGER.info(f'\nDataset not found , missing path {data_dir}, attempting download...')
             t = time.time()
             if str(data) == 'imagenet':
                 subprocess.run(f"bash {ROOT / 'data/scripts/get_imagenet.sh'}", shell=True, check=True)
             else:
                 url = f'https://github.com/ultralytics/yolov5/releases/download/v1.0/{data}.zip'
                 download(url, dir=data_dir.parent)
-            s = f"Dataset download success ✅ ({time.time() - t:.1f}s), saved to {colorstr('bold', data_dir)}\n"
+            s = f"Dataset download success  ({time.time() - t:.1f}s), saved to {colorstr('bold', data_dir)}\n"
             LOGGER.info(s)
 
     # Dataloaders
@@ -115,7 +115,7 @@ def train(opt, device):
             m = hub.list('ultralytics/yolov5')  # + hub.list('pytorch/vision')  # models
             raise ModuleNotFoundError(f'--model {opt.model} not found. Available models are: \n' + '\n'.join(m))
         if isinstance(model, DetectionModel):
-            LOGGER.warning("WARNING ⚠️ pass YOLOv5 classifier model with '-cls' suffix, i.e. '--model yolov5s-cls.pt'")
+            LOGGER.warning("WARNING  pass YOLOv5 classifier model with '-cls' suffix, i.e. '--model yolov5s-cls.pt'")
             model = ClassificationModel(model=model, nc=nc, cutoff=opt.cutoff or 10)  # convert to classification model
         reshape_classifier_output(model, nc)  # update class count
     for m in model.modules():

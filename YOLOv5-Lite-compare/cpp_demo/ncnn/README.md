@@ -4,27 +4,27 @@ https://github.com/ppogg/ncnn-android-v5lite/tree/master/app/src/main/assets
 
 ## Detection effect
 
-Pytorch{640×640}：
+Pytorch{640640}
 
 ![person](https://user-images.githubusercontent.com/82716366/129822414-56ad3bf3-1005-47aa-9bd9-c4117227a981.jpg)
 <img src="https://pic1.zhimg.com/v2-f2fc4c403b53e14205addff38403ed30_b.jpeg" width="700" height="500"/><br/>
 
-NCNN{FP16}@{640×640}:
+NCNN{FP16}@{640640}:
 
 ![image](https://user-images.githubusercontent.com/82716366/129720264-ca6403c4-188b-4dd1-8372-c9a18c915fd8.png)
 <img src="https://pic3.zhimg.com/v2-449185dd08bce8a5a801d9bde0e9aa16_b.jpeg" width="700" height="500"/><br/>
 
-NCNN{Int8}@{640×640}:
+NCNN{Int8}@{640640}:
 
 ![image](https://user-images.githubusercontent.com/82716366/129720338-5ce1ee2e-46ab-4e82-a2d1-2d8faf6c5661.png)
 <img src="https://user-images.githubusercontent.com/82716366/129822133-d269cefc-4705-4aa2-9b00-5ecd630da969.jpg" width="700" height="500"/><br/>
 
 ### 10FPS can be used with yolov5 on the Raspberry Pi with only 0.1T computing power
 
-Excluding the first three warm-ups, the device temperature is stable above 45°, the forward reasoning framework is ncnn, and the two benchmark comparisons are recorded
+Excluding the first three warm-ups, the device temperature is stable above 45, the forward reasoning framework is ncnn, and the two benchmark comparisons are recorded
 
 ```
-# 第四次
+#
 pi@raspberrypi:~/Downloads/ncnn/build/benchmark $ ./benchncnn 8 4 0
 loop_count = 8
 num_threads = 4
@@ -66,7 +66,7 @@ cooling_down = 1
       mobilenet_yolo  min =  327.67  max =  332.85  avg =  330.36
   mobilenetv2_yolov3  min =  221.17  max =  224.84  avg =  222.60
 
-# 第八次
+#
 pi@raspberrypi:~/Downloads/ncnn/build/benchmark $ ./benchncnn 8 4 0
 loop_count = 8
 num_threads = 4
@@ -111,7 +111,7 @@ cooling_down = 1
 ```
 
 
-NCNN deployment and int8 quantization：https://zhuanlan.zhihu.com/p/400545131
+NCNN deployment and int8 quantizationhttps://zhuanlan.zhihu.com/p/400545131
 
 ![int8](https://user-images.githubusercontent.com/82716366/130357075-a64466b9-502b-43d2-98fc-e7f695c319b0.jpg)
 

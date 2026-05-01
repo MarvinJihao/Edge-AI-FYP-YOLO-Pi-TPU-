@@ -9,23 +9,23 @@ from pathlib import Path
 
 
 def get_memory_usage():
-    """当前进程 RSS 内存 (MB)"""
+    """Return RSS memory usage in MB."""
     return psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
 
 
 def get_cpu_usage():
-    """当前进程 CPU 占用率 (%)"""
+    """Return process CPU usage percentage."""
     return psutil.Process(os.getpid()).cpu_percent(interval=None)
 
 
-# ═══════════════════════════════════════════════════════════════
-#  精度计算工具
-# ═══════════════════════════════════════════════════════════════
+#
+#  Accuracy metric helpers
+#
 
 def box_iou_numpy(boxes1, boxes2):
     """
-    计算两组框的 IoU，boxes: [N,4] (x1,y1,x2,y2)
-    返回 [N, M] IoU 矩阵
+    Compute pairwise IoU for boxes in [N, 4] format (x1, y1, x2, y2).
+    Returns an [N, M] IoU matrix.
     """
     area1 = (boxes1[:, 2] - boxes1[:, 0]) * (boxes1[:, 3] - boxes1[:, 1])
     area2 = (boxes2[:, 2] - boxes2[:, 0]) * (boxes2[:, 3] - boxes2[:, 1])
@@ -45,8 +45,7 @@ def box_iou_numpy(boxes1, boxes2):
 
 def load_gt_labels(label_path, img_shape):
     """
-    读取 YOLO 格式 gt label。
-    返回 np.ndarray [N, 5] (cls, x1, y1, x2, y2) 像素坐标
+    Load YOLO ground-truth labels as np.ndarray [N, 5] (cls, x1, y1, x2, y2).
     """
     h, w = img_shape[:2]
     labels = []
@@ -67,12 +66,12 @@ def load_gt_labels(label_path, img_shape):
 
 def compute_metrics_per_image(pred_boxes, pred_cls, pred_conf, gt, iou_thres=0.5):
     """
-    单张图 TP/FP/FN 统计。
-    pred_boxes : np.ndarray [M, 4]  (x1,y1,x2,y2) 像素坐标
-    pred_cls   : np.ndarray [M]     int 类别
-    pred_conf  : np.ndarray [M]     float 置信度
-    gt         : np.ndarray [N, 5]  (cls, x1,y1,x2,y2)
-    返回: {cls_id: {'tp', 'fp', 'fn', 'conf_list'}}
+    Compute TP, FP, and FN values for one image.
+    pred_boxes : np.ndarray [M, 4] (x1, y1, x2, y2)
+    pred_cls   : np.ndarray [M] int
+    pred_conf  : np.ndarray [M] float
+    gt         : np.ndarray [N, 5] (cls, x1, y1, x2, y2)
+    Returns: {cls_id: {'tp', 'fp', 'fn', 'conf_list'}}
     """
     result = {}
     gt_boxes = gt[:, 1:]  # [N, 4]
@@ -105,7 +104,7 @@ def compute_metrics_per_image(pred_boxes, pred_cls, pred_conf, gt, iou_thres=0.5
             result[pc]['fp'] += 1
             result[pc]['conf_list'].append((conf, 0))
 
-    # 未命中的 GT → FN
+    # Count unmatched ground-truth boxes as false negatives.
     for n in range(len(gt)):
         if not gt_matched[n]:
             gc = int(gt_cls[n])
@@ -127,7 +126,7 @@ def merge_metrics(global_metrics, image_metrics):
 
 
 def compute_ap(conf_list, total_gt):
-    """11-point 插值 AP"""
+    """Compute 11-point interpolation AP."""
     if total_gt == 0 or not conf_list:
         return 0.0
     conf_list = sorted(conf_list, key=lambda x: -x[0])
@@ -149,7 +148,7 @@ def compute_ap(conf_list, total_gt):
 
 def print_metrics_table(global_metrics, names, iou_thres):
     print(f"\n{'=' * 74}")
-    print(f"  精度评估结果  (IoU threshold = {iou_thres})")
+    print(f"  Accuracy evaluation results  (IoU threshold = {iou_thres})")
     print(f"{'=' * 74}")
     print(f"  {'Class':<20} {'TP':>6} {'FP':>6} {'FN':>6} {'Prec':>8} {'Recall':>8} {'F1':>8} {'AP':>8}")
     print(f"  {'-' * 72}")
@@ -164,7 +163,7 @@ def print_metrics_table(global_metrics, names, iou_thres):
         recall = tp / total_gt if total_gt > 0 else 0.0
         f1 = 2 * prec * recall / (prec + recall) if (prec + recall) > 0 else 0.0
         ap = compute_ap(vals['conf_list'], total_gt)
-        # 类别名：ultralytics model.names 是 dict {int: str}
+        # Ultralytics model.names may be a dict {int: str}.
         cls_name = names.get(cls_id, str(cls_id)) if isinstance(names, dict) else (
             names[cls_id] if cls_id < len(names) else str(cls_id))
         print(f"  {cls_name:<20} {tp:>6} {fp:>6} {fn:>6} {prec:>8.3f} {recall:>8.3f} {f1:>8.3f} {ap:>8.3f}")
@@ -179,15 +178,13 @@ def print_metrics_table(global_metrics, names, iou_thres):
     mAP = sum(all_ap) / len(all_ap) if all_ap else 0.0
     print(f"  {'-' * 72}")
     print(
-        f"  {'ALL':<20} {all_tp:>6} {all_fp:>6} {all_fn:>6} {all_prec:>8.3f} {all_recall:>8.3f} {all_f1:>8.3f} {mAP:>8.3f}  ← mAP")
+        f"  {'ALL':<20} {all_tp:>6} {all_fp:>6} {all_fn:>6} {all_prec:>8.3f} {all_recall:>8.3f} {all_f1:>8.3f} {mAP:>8.3f}   mAP")
     print(f"{'=' * 74}\n")
 
 
-# ═══════════════════════════════════════════════════════════════
-#  主流程
-# ═══════════════════════════════════════════════════════════════
+#  Main workflow
 
-IOU_THRES = 0.5  # 精度评估 IoU 阈值（可按需调整）
+IOU_THRES = 0.5  # IoU threshold
 
 weight_path = r"./runs/detect/train320/weights/best.pt"
 image_folder = "datasets/animal_yolo_format/images/test"
@@ -201,19 +198,17 @@ image_paths = [
     if img.endswith(('.jpg', '.png', '.jpeg'))
 ]
 
-# ── 全局统计容器 ───────────────────────────────────────────────
+# Global statistics containers.
 all_perf_stats = []
 global_metrics = {}
-get_cpu_usage()  # 预热 cpu_percent 首次采样
+get_cpu_usage()  # warm up cpu_percent
 t0 = time.time()
-# ──────────────────────────────────────────────────────────────
 
 for image_path in image_paths:
 
-    # ── 性能：本张图开始 ──────────────────────────────────────
+    # Start performance sampling.
     mem_before = get_memory_usage()
     t_img_start = time.perf_counter()
-    # ──────────────────────────────────────────────────────────
 
     results = model.predict(
         task="detect",
@@ -227,29 +222,24 @@ for image_path in image_paths:
         save=True,
         device="cpu",
         augment=True,
-        verbose=False,  # 关闭原生日志，统一用自定义输出
+        verbose=False,
     )
 
-    # ── 性能：本张图结束 ──────────────────────────────────────
+    # Finish performance sampling.
     t_img_end = time.perf_counter()
     mem_after = get_memory_usage()
     cpu_pct = get_cpu_usage()
     total_ms = (t_img_end - t_img_start) * 1e3
     mem_delta = mem_after - mem_before
-    # ──────────────────────────────────────────────────────────
-
     for result in results:
         img_shape = result.orig_shape  # (h, w)
 
-        # ── 从 result 提取推理各阶段耗时 (ms) ────────────────
+        # Ultralytics result timing is reported in milliseconds.
         # result.speed = {'preprocess': ms, 'inference': ms, 'postprocess': ms}
         spd = result.speed
         pre_ms = spd.get('preprocess', 0.0)
         infer_ms = spd.get('inference', 0.0)
         post_ms = spd.get('postprocess', 0.0)
-        # ──────────────────────────────────────────────────────
-
-        # ── 提取预测框 ────────────────────────────────────────
         boxes = result.boxes
         if boxes is not None and len(boxes):
             pred_xyxy = boxes.xyxy.cpu().numpy()  # [M, 4]
@@ -259,32 +249,27 @@ for image_path in image_paths:
             pred_xyxy = np.zeros((0, 4))
             pred_cls = np.zeros(0, dtype=int)
             pred_conf = np.zeros(0)
-        # ──────────────────────────────────────────────────────
 
-        # ── 精度：读取对应 gt label ───────────────────────────
+        # Load matching ground-truth label.
         p = Path(image_path)
         label_path = str(p).replace(os.sep + 'images' + os.sep,
                                     os.sep + 'labels' + os.sep)
         label_path = os.path.splitext(label_path)[0] + '.txt'
         gt = load_gt_labels(label_path, img_shape)
-        # ──────────────────────────────────────────────────────
 
-        # ── 精度：计算并合并本张图指标 ────────────────────────
+        # Compute and merge metrics for this image.
         img_metrics = compute_metrics_per_image(
             pred_xyxy, pred_cls, pred_conf, gt, iou_thres=IOU_THRES
         )
         merge_metrics(global_metrics, img_metrics)
-        # ──────────────────────────────────────────────────────
 
-        # ── 打印本张图汇总 ────────────────────────────────────
         n_det = len(pred_xyxy)
         print(
             f"[{p.name}]  det: {n_det} "
             f"| pre: {pre_ms:.1f}ms  infer: {infer_ms:.1f}ms  post: {post_ms:.1f}ms  total: {total_ms:.1f}ms "
-            f"| mem: {mem_after:.1f}MB (Δ{mem_delta:+.1f}MB) "
+            f"| mem: {mem_after:.1f}MB ({mem_delta:+.1f}MB) "
             f"| cpu: {cpu_pct:.1f}%"
         )
-        # ──────────────────────────────────────────────────────
 
     all_perf_stats.append({
         'pre_ms': pre_ms,
@@ -296,7 +281,7 @@ for image_path in image_paths:
         'cpu_pct': cpu_pct,
     })
 
-# ── 汇总性能 ──────────────────────────────────────────────────
+# Performance summary.
 if all_perf_stats:
     n = len(all_perf_stats)
 
@@ -305,13 +290,13 @@ if all_perf_stats:
 
 
     print(f"\n{'=' * 60}")
-    print(f"  共处理 {n} 张  总耗时: {time.time() - t0:.2f}s")
-    print(f"  预处理: {avg('pre_ms'):.1f}ms  推理: {avg('infer_ms'):.1f}ms  "
-          f"后处理: {avg('post_ms'):.1f}ms  端到端: {avg('total_ms'):.1f}ms  (均值/张)")
-    print(f"  内存: {avg('mem_mb'):.1f}MB   CPU: {avg('cpu_pct'):.1f}%  (均值/张)")
+    print(f"  Processed {n} images   total time: {time.time() - t0:.2f}s")
+    print(f"  preprocess: {avg('pre_ms'):.1f}ms  inference: {avg('infer_ms'):.1f}ms  "
+          f"postprocess: {avg('post_ms'):.1f}ms  end-to-end: {avg('total_ms'):.1f}ms  (average)")
+    print(f"  memory: {avg('mem_mb'):.1f}MB   CPU: {avg('cpu_pct'):.1f}%  (average)")
     print(f"{'=' * 60}")
 
-# ── 汇总精度 ──────────────────────────────────────────────────
+# Accuracy summary.
 if global_metrics:
     print_metrics_table(global_metrics, names, IOU_THRES)
 
@@ -320,13 +305,13 @@ if global_metrics:
 
 #640
 # ============================================================
-#   共处理 321 张  总耗时: 54.81s
-#   预处理: 1.8ms  推理: 156.7ms  后处理: 0.6ms  端到端: 170.1ms  (均值/张)
-#   内存: 598.2MB   CPU: 0.0%  (均值/张)
+#   Processed 321   total time: 54.81s
+#   preprocess: 1.8ms  inference: 156.7ms  postprocess: 0.6ms  end-to-end: 170.1ms  (average)
+#   memory: 598.2MB   CPU: 0.0%  (average)
 # ============================================================
 #
 # ==========================================================================
-#   精度评估结果  (IoU threshold = 0.5)
+#   Accuracy evaluation results  (IoU threshold = 0.5)
 # ==========================================================================
 #   Class                    TP     FP     FN     Prec   Recall       F1       AP
 #   ------------------------------------------------------------------------
@@ -337,18 +322,18 @@ if global_metrics:
 #   horse                    66      8     35    0.892    0.653    0.754    0.621
 #   sheep                    27      5     41    0.844    0.397    0.540    0.352
 #   ------------------------------------------------------------------------
-#   ALL                     268     83    221    0.764    0.548    0.638    0.499  ← mAP
+#   ALL                     268     83    221    0.764    0.548    0.638    0.499   mAP
 # ==========================================================================
 
 #320
 # ============================================================
-#   共处理 321 张  总耗时: 28.26s
-#   预处理: 0.8ms  推理: 74.1ms  后处理: 0.5ms  端到端: 87.3ms  (均值/张)
-#   内存: 557.9MB   CPU: 0.0%  (均值/张)
+#   Processed 321   total time: 28.26s
+#   preprocess: 0.8ms  inference: 74.1ms  postprocess: 0.5ms  end-to-end: 87.3ms  (average)
+#   memory: 557.9MB   CPU: 0.0%  (average)
 # ============================================================
 #
 # ==========================================================================
-#   精度评估结果  (IoU threshold = 0.5)
+#   Accuracy evaluation results  (IoU threshold = 0.5)
 # ==========================================================================
 #   Class                    TP     FP     FN     Prec   Recall       F1       AP
 #   ------------------------------------------------------------------------
@@ -359,6 +344,6 @@ if global_metrics:
 #   horse                    65      8     36    0.890    0.644    0.747    0.620
 #   sheep                    23      8     45    0.742    0.338    0.465    0.333
 #   ------------------------------------------------------------------------
-#   ALL                     237     77    252    0.755    0.485    0.590    0.441  ← mAP
+#   ALL                     237     77    252    0.755    0.485    0.590    0.441   mAP
 # ==========================================================================
 

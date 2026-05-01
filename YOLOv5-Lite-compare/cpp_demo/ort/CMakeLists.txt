@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.25)
 project (v5Lite)
-set(CMAKE_CXX_STANDARD 11)	
+set(CMAKE_CXX_STANDARD 11)
 
 set(OpenCV_DIR "/home/chenxr/Downloads/opencv-4.1.0/build")
 find_package(OpenCV REQUIRED)

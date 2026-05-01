@@ -1,6 +1,6 @@
-# MNN cv 
+# MNN cv
 
-MNN cv is a warpper of MNN's expr functions and some cv functions, which provides the APIs like OpenCV. 
+MNN cv is a warpper of MNN's expr functions and some cv functions, which provides the APIs like OpenCV.
 
 ## Usage
 Compile MNN with cv, using below command:
@@ -27,4 +27,4 @@ cmake -DMNN_BUILD_OPENCV=ON .. && make -j8
 `MNN_OPENCV_TEST` default is OFF, this macro control the unit test.
 ### MNN_OPENCV_BENCH
 `MNN_OPENCV_BENCH` default is OFF, this macro control the benchmark of MNN cv with OpenCV.
- 
+

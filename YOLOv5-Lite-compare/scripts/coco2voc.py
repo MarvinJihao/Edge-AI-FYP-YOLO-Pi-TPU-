@@ -48,19 +48,19 @@ tailstr = '''\
 '''
 
 
-# 如果目录不存在则创建它，存在则删除后创建
+#
 def mkr(path):
     if os.path.exists(path):
-        # 删除后创建
+        #
         shutil.rmtree(path)
         # os.mkdir(path)
-        # os.mkdir创建单层目录；os.makedirs创建多层目录
+        # os.mkdiros.makedirs
         os.makedirs(path)
     else:
         os.makedirs(path)
 
 
-# 通过coco数据集的id，得到它的类别名
+# cocodatasetid
 def id2name(coco):
     classes = dict()
     for cls in coco.dataset['categories']:
@@ -68,7 +68,7 @@ def id2name(coco):
     return classes
 
 
-# 写xml文件
+# xml
 def write_xml(anno_path, head, objs, tail):
     f = open(anno_path, "w")
     f.write(head)
@@ -107,7 +107,7 @@ def showimg(coco, dataset, img, classes, cls_id, show=True):
     global dataDir
     I = Image.open('%s/%s/%s' % (dataDir, dataset, img['file_name']))
     # print(I)#
-    # 通过id，得到注释的信息
+    # id
     annIds = coco.getAnnIds(imgIds=img['id'], catIds=cls_id, iscrowd=None)
     # print(annIds)
     anns = coco.loadAnns(annIds)
@@ -145,12 +145,12 @@ def generate():
         # COCO API for initializing annotated data
         coco = COCO(annFile)
         '''
-        COCO 对象创建完毕后会输出如下信息:
+        COCO :
         loading annotations into memory...
         Done (t=0.81s)
         creating index...
         index created!
-        至此, json 脚本解析完毕, 并且将图片和对应的标注数据关联起来.
+        , json , .
         '''
         # show all classes in coco
         classes = id2name(coco)
@@ -187,7 +187,7 @@ def split_traintest(trainratio=0.7, valratio=0.2, testratio=0.1):
     tests = []
     random.shuffle(files)
     for i in range(len(files)):
-        filepath = img_dir + "/" + files[i][:-3] + "jpg"  # 找到以上images文件夹下的图片
+        filepath = img_dir + "/" + files[i][:-3] + "jpg"  # images
         # print(filepath)
         if (i < trainratio * len(files)):
             trains.append(files[i])
@@ -197,7 +197,7 @@ def split_traintest(trainratio=0.7, valratio=0.2, testratio=0.1):
             trainvals.append(files[i])
         else:
             tests.append(files[i])
-    # 生成yolo所用的txt
+    # yolotxt
     with open(dataset_dir + "/trainval.txt", "w")as f:
         for line in trainvals:
             line = img_dir + "/" + line
@@ -207,7 +207,7 @@ def split_traintest(trainratio=0.7, valratio=0.2, testratio=0.1):
             line = img_dir + "/" + line
             f.write(line + "\n")
 
-    # 生成voc所用的txt
+    # voctxt
     maindir = dataset_dir + "ImageSets/Main"
     mkr(maindir)
     with open(maindir + "/train.txt", "w") as f:
@@ -231,19 +231,19 @@ def split_traintest(trainratio=0.7, valratio=0.2, testratio=0.1):
 
 
 if __name__ == "__main__":
-    # 下载的coco数据集存放路径，annotations和train2014/val2014/...
+    # cocodatasetannotationstrain2014/val2014/...
     dataDir = r'D:\Dataset\coco/'
-    # 转化后的文件保存路径
+    #
     savepath = r"D:\Dataset\person2"
-    # 转化后图片保存路径
+    #
     img_dir = savepath + 'images/'
-    # 转化后xml保存路径
+    # xml
     anno_dir = savepath + 'Annotations/'
-    # 选用的数据集列表
+    # dataset
     # datasets_list=['train2014', 'val2014']
     datasets_list = ['val2017']
-    # 想要从coco数据集中提取的类别
-    # coco数据集目标检测中有90个id，但实际只有80类
+    # cocodataset
+    # cocodataset90id80
     classes_names = ['person']
     """classes_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat',
                      'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog',
@@ -256,12 +256,12 @@ if __name__ == "__main__":
                      'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier',
                      'toothbrush']"""
 
-    # 创建所需要的目录
+    #
     mkr(savepath)
     mkr(img_dir)
     mkr(anno_dir)
 
-    # 生成voc格式的数据集
+    # vocdataset
     generate()
-    # 生成yolo及voc所使用的txt文件
+    # yolovoctxt
     split_traintest()

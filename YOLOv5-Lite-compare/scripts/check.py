@@ -64,7 +64,7 @@ def non_max_suppression_mnnd(prediction, conf_thres=0.25, iou_thres=0.45, classe
     output = []
     print(prediction.shape)
 
-    min_wh, max_wh = 2, 4096  
+    min_wh, max_wh = 2, 4096
     xc = prediction[..., 4] > conf_thres  # candidates
     output = [torch.zeros((0, 6), device=prediction.device)] * prediction.shape[0]
     print(type(output))
@@ -113,15 +113,15 @@ def process(weight_path, img_path):
     out = sess.run(['outputs'], {'images': image.numpy()})[0]
     out = torch.from_numpy(out)
 
-    # 如果使用的是end2end的导出方式，则使用以下后处理
+    # end2endpostprocess
     # output = non_max_suppression_end2end(out, 0.50, 0.50, nc=80)
 
-    # 如果使用的是mnnd的导出方式，则使用以下后处理
+    # mnndpostprocess
     output = non_max_suppression_mnnd(out, 0.50, 0.50, nc=80)
 
-    # 如果使用的是mnne的导出方式，则使用以下后处理
+    # mnnepostprocess
     # output = non_max_suppression_mnne(out, 0.50, 0.50, nc=80)
-   
+
     nimg = image[0].permute(1, 2, 0) * 255
     nimg = nimg.cpu().numpy().astype(np.uint8)
     nimg = cv2.cvtColor(nimg, cv2.COLOR_BGR2RGB)

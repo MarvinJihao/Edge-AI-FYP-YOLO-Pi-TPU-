@@ -811,7 +811,7 @@ class LC3(nn.Module):
     # CSP Bottleneck with 3 convolutions
     def __init__(self, c1, c2, n=1, shortcut=True, g=1, e=0.5):  # ch_in, ch_out, number, shortcut, groups, expansion
         super(LC3, self).__init__()
-        # 这里使用轻量化的C3 Block模块,使用add操作替换cat
+        # Use a lightweight C3 block and replace concat with add.
         c_ = int(c2 * e)  # hidden channels
         self.cv1 = Conv(c1, c_, 1, 1)
         self.cv2 = Conv(c1, c_, 1, 1)
@@ -1124,7 +1124,7 @@ class Dense(nn.Module):
         # x = x.reshape(b, self.c2, w, h)
         return x
 
-    
+
 # build enhance shuffle block
 # -------------------------------------------------------------------------
 

@@ -1,11 +1,11 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# YOLOv5  by Ultralytics, GPL-3.0 license
 # ImageNet-1k dataset https://www.image-net.org/index.php by Stanford University
 # Simplified class names from https://github.com/anishathalye/imagenet-simple-labels
 # Example usage: python classify/train.py --data imagenet
 # parent
-# ├── yolov5
-# └── datasets
-#     └── imagenet  ← downloads here (144 GB)
+#  yolov5
+#  datasets
+#      imagenet   downloads here (144 GB)
 
 
 # Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]

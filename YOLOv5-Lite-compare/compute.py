@@ -28,11 +28,11 @@ def get_cpu_usage():
     return process.cpu_percent(interval=None)
 
 
-# ── 精度计算工具函数 ───────────────────────────────────────────────────────────
+#  Accuracy metric helpers
 
 def load_gt_labels(label_path, img_shape):
     """
-    读取 YOLO 格式的 gt label 文件，返回 tensor [N, 5] (cls, x1, y1, x2, y2) 像素坐标
+    Load YOLO ground-truth labels as tensor [N, 5] (cls, x1, y1, x2, y2).
     label_path: str, img_shape: (h, w)
     """
     h, w = img_shape[:2]
@@ -55,10 +55,10 @@ def load_gt_labels(label_path, img_shape):
 
 def compute_metrics_per_image(det, gt, iou_thres=0.5, nc=None):
     """
-    计算单张图的 TP/FP/FN。
-    det: tensor [M, 6]  (x1,y1,x2,y2, conf, cls)  —— 已映射回原图尺寸
-    gt : tensor [N, 5]  (cls, x1,y1,x2,y2)
-    返回: dict {cls_id: {'tp':, 'fp':, 'fn':, 'conf_list':[]}}
+    Compute TP, FP, and FN values for one image.
+    det: tensor [M, 6] (x1, y1, x2, y2, conf, cls)
+    gt : tensor [N, 5] (cls, x1, y1, x2, y2)
+    Returns: {cls_id: {'tp':, 'fp':, 'fn':, 'conf_list':[]}}
     """
     result = {}
 
@@ -78,7 +78,7 @@ def compute_metrics_per_image(det, gt, iou_thres=0.5, nc=None):
         if pc not in result:
             result[pc] = {'tp': 0, 'fp': 0, 'fn': 0, 'conf_list': []}
 
-        # 在同类 gt 中找 IoU 最大的
+        # Match each prediction against ground-truth boxes of the same class.
         same_cls_mask = (gt_cls == pc)
         if same_cls_mask.sum() == 0:
             result[pc]['fp'] += 1
@@ -88,7 +88,7 @@ def compute_metrics_per_image(det, gt, iou_thres=0.5, nc=None):
         ious = box_iou(pred_boxes[m].unsqueeze(0), gt_boxes[same_cls_mask])  # [1, K]
         max_iou, max_idx_local = ious[0].max(0)
 
-        # 映射回全局 gt 下标
+        # Map the local match index back to the global ground-truth index.
         global_indices = same_cls_mask.nonzero(as_tuple=False).squeeze(1)
         max_idx_global = global_indices[max_idx_local].item()
 
@@ -100,7 +100,7 @@ def compute_metrics_per_image(det, gt, iou_thres=0.5, nc=None):
             result[pc]['fp'] += 1
             result[pc]['conf_list'].append((conf, 0))
 
-    # 统计 FN：未被匹配的 gt
+    # Count unmatched ground-truth boxes as false negatives.
     for n in range(len(gt)):
         if not gt_matched[n]:
             gc = gt_cls[n].item()
@@ -112,7 +112,7 @@ def compute_metrics_per_image(det, gt, iou_thres=0.5, nc=None):
 
 
 def merge_metrics(global_metrics, image_metrics):
-    """将单张图指标合并到全局"""
+    """Merge per-image metrics into the global metrics dictionary."""
     for cls_id, vals in image_metrics.items():
         if cls_id not in global_metrics:
             global_metrics[cls_id] = {'tp': 0, 'fp': 0, 'fn': 0, 'conf_list': []}
@@ -124,8 +124,9 @@ def merge_metrics(global_metrics, image_metrics):
 
 def compute_ap(conf_list, total_gt):
     """
-    11-point interpolation AP。
-    conf_list: [(conf, is_tp), ...]  total_gt: 该类所有 gt 数
+    11-point interpolation AP
+    conf_list: [(conf, is_tp), ...]
+    total_gt: number of ground-truth boxes for this class
     """
     if total_gt == 0 or len(conf_list) == 0:
         return 0.0
@@ -149,9 +150,9 @@ def compute_ap(conf_list, total_gt):
 
 
 def print_metrics_table(global_metrics, names, iou_thres):
-    """打印每类及整体的 Precision / Recall / F1 / AP"""
+    """Print per-class and overall Precision / Recall / F1 / AP."""
     print(f"\n{'=' * 70}")
-    print(f"  精度评估结果 (IoU threshold = {iou_thres})")
+    print(f"  Accuracy evaluation results (IoU threshold = {iou_thres})")
     print(f"{'=' * 70}")
     print(f"  {'Class':<20} {'TP':>6} {'FP':>6} {'FN':>6} {'Prec':>8} {'Recall':>8} {'F1':>8} {'AP':>8}")
     print(f"  {'-' * 68}")
@@ -175,7 +176,7 @@ def print_metrics_table(global_metrics, names, iou_thres):
         all_fn += fn
         all_ap.append(ap)
 
-    # 整体
+    # Overall metrics.
     all_prec = all_tp / (all_tp + all_fp) if (all_tp + all_fp) > 0 else 0.0
     all_recall = all_tp / (all_tp + all_fn) if (all_tp + all_fn) > 0 else 0.0
     all_f1 = 2 * all_prec * all_recall / (all_prec + all_recall) if (all_prec + all_recall) > 0 else 0.0
@@ -183,7 +184,7 @@ def print_metrics_table(global_metrics, names, iou_thres):
 
     print(f"  {'-' * 68}")
     print(
-        f"  {'ALL':<20} {all_tp:>6} {all_fp:>6} {all_fn:>6} {all_prec:>8.3f} {all_recall:>8.3f} {all_f1:>8.3f} {mAP:>8.3f}  ← mAP")
+        f"  {'ALL':<20} {all_tp:>6} {all_fp:>6} {all_fn:>6} {all_prec:>8.3f} {all_recall:>8.3f} {all_f1:>8.3f} {mAP:>8.3f}   mAP")
     print(f"{'=' * 70}\n")
 
 
@@ -226,20 +227,18 @@ def detect(save_img=False):
     if device.type != 'cpu':
         model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))
 
-    # ── 全局统计容器 ──────────────────────────────────────
-    all_perf_stats = []  # 性能统计
-    global_metrics = {}  # 精度统计
-    # ──────────────────────────────────────────────────────
+    # Global statistics containers.
+    all_perf_stats = []  # performance statistics
+    global_metrics = {}  # accuracy statistics
 
     t0 = time.time()
-    get_cpu_usage()  # 预热
+    get_cpu_usage()  # warm up
 
     for path, img, im0s, vid_cap in dataset:
 
-        # ── 性能采样：开始 ────────────────────────────────
+        # Start performance sampling.
         mem_before = get_memory_usage()
         t_img_start = time.perf_counter()
-        # ──────────────────────────────────────────────────
 
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()
@@ -268,15 +267,13 @@ def detect(save_img=False):
             s += '%gx%g ' % img.shape[2:]
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]
 
-            # ── 精度：读取对应 gt label ───────────────────
-            # 约定：label 文件与图像同名，位于同级 labels/ 目录
-            # 例如 images/test/xxx.jpg → labels/test/xxx.txt
+            # Load matching ground-truth label:
+            # images/test/xxx.jpg -> labels/test/xxx.txt
             img_path = Path(p)
             label_path = str(img_path).replace(os.sep + 'images' + os.sep,
                                                os.sep + 'labels' + os.sep)
             label_path = os.path.splitext(label_path)[0] + '.txt'
             gt = load_gt_labels(label_path, im0.shape)  # [N,5] cls,x1,y1,x2,y2
-            # ──────────────────────────────────────────────
 
             if len(det):
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
@@ -296,16 +293,15 @@ def detect(save_img=False):
                         label = f'{names[int(cls)]} {conf:.2f}'
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=3)
 
-            # ── 精度：计算并合并本张图指标 ───────────────
+            # Compute and merge metrics for this image.
             img_metrics = compute_metrics_per_image(
                 det.cpu() if len(det) else torch.zeros((0, 6)),
                 gt,
                 iou_thres=opt.iou_thres
             )
             merge_metrics(global_metrics, img_metrics)
-            # ──────────────────────────────────────────────
 
-            # ── 性能采样：结束 ────────────────────────────
+            # Finish performance sampling.
             t_img_end = time.perf_counter()
             mem_after = get_memory_usage()
             cpu_pct = get_cpu_usage()
@@ -315,7 +311,7 @@ def detect(save_img=False):
 
             print(f"{s}Done. "
                   f"| infer+NMS: {infer_ms:.1f}ms  total: {total_ms:.1f}ms "
-                  f"| mem: {mem_after:.1f}MB (Δ{mem_delta:+.1f}MB) "
+                  f"| mem: {mem_after:.1f}MB ({mem_delta:+.1f}MB) "
                   f"| cpu: {cpu_pct:.1f}%")
 
             all_perf_stats.append({
@@ -325,8 +321,6 @@ def detect(save_img=False):
                 'mem_delta': mem_delta,
                 'cpu_pct': cpu_pct,
             })
-            # ──────────────────────────────────────────────
-
             if view_img:
                 cv2.imshow(str(p), im0)
                 cv2.waitKey(1)
@@ -349,7 +343,7 @@ def detect(save_img=False):
                         vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
                     vid_writer.write(im0)
 
-    # ── 汇总性能 ──────────────────────────────────────────
+    # Performance summary.
     if all_perf_stats:
         n = len(all_perf_stats)
         avg_infer = sum(x['infer_ms'] for x in all_perf_stats) / n
@@ -357,16 +351,14 @@ def detect(save_img=False):
         avg_mem = sum(x['mem_mb'] for x in all_perf_stats) / n
         avg_cpu = sum(x['cpu_pct'] for x in all_perf_stats) / n
         print(f"\n{'=' * 60}")
-        print(f"共处理 {n} 张图像  总耗时: {time.time() - t0:.3f}s")
-        print(f"  推理+NMS 均值: {avg_infer:.1f}ms   单图总均值: {avg_total:.1f}ms")
-        print(f"  内存均值: {avg_mem:.1f}MB   CPU均值: {avg_cpu:.1f}%")
+        print(f"Processed {n} images  total time: {time.time() - t0:.3f}s")
+        print(f"  inference+NMS average: {avg_infer:.1f}ms   total average: {avg_total:.1f}ms")
+        print(f"  memory average: {avg_mem:.1f}MB   CPU average: {avg_cpu:.1f}%")
         print(f"{'=' * 60}")
-    # ──────────────────────────────────────────────────────
 
-    # ── 汇总精度 ──────────────────────────────────────────
+    # Accuracy summary.
     if global_metrics:
         print_metrics_table(global_metrics, names, opt.iou_thres)
-    # ──────────────────────────────────────────────────────
 
     if save_txt or save_img:
         s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
@@ -405,29 +397,3 @@ if __name__ == '__main__':
                 strip_optimizer(opt.weights)
         else:
             detect()
-# ```
-#
-# ---
-#
-# **精度部分改动说明：**
-#
-# 新增了三个核心函数，逻辑完全独立，不影响原有推理流程：
-#
-# `load_gt_labels()` 读取 YOLO 格式的 `.txt` 标注文件，自动将归一化 `(cx, cy, w, h)` 转换为像素坐标 `(x1, y1, x2, y2)`。label 路径规则与 YOLO 标准一致，即把路径中的 `images` 替换为 `labels`。
-#
-# `compute_metrics_per_image()` 对每张图按类别统计 TP / FP / FN：对每个预测框，在同类 GT 中找 IoU 最大的一个，超过阈值且未被匹配则为 TP，否则为 FP；遍历结束后未被匹配的 GT 计为 FN。同时记录每个预测的 `(conf, is_tp)` 供 AP 计算使用。
-#
-# `compute_ap()` 使用 **11-point 插值法** 计算 AP，与 VOC 标准一致。
-#
-# 最终精度表输出示例：
-# ```
-# ======================================================================
-#   精度评估结果 (IoU threshold = 0.5)
-# ======================================================================
-#   Class                   TP      FP      FN      Prec   Recall       F1       AP
-#   --------------------------------------------------------------------
-#   cat                     82       9      11     0.901    0.882    0.891    0.876
-#   dog                     74      12       8     0.860    0.902    0.881    0.864
-#   --------------------------------------------------------------------
-#   ALL                    156      21      19     0.881    0.891    0.886    0.870  ← mAP
-# ======================================================================

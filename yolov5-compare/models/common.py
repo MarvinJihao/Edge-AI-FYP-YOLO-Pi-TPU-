@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# YOLOv5  by Ultralytics, GPL-3.0 license
 """
 Common modules
 """
@@ -153,7 +153,7 @@ class CrossConv(nn.Module):
 
     def forward(self, x):
         return x + self.cv2(self.cv1(x)) if self.add else self.cv2(self.cv1(x))
-    
+
 class SE(nn.Module):
 
     def __init__(self, in_chnls, ratio):
@@ -168,7 +168,7 @@ class SE(nn.Module):
         out = F.relu(out)
         out = self.excitation(out)
         return x*F.sigmoid(out)
-    
+
 class C2fBottleneck(nn.Module):
     """Standard bottleneck."""
 
@@ -194,7 +194,7 @@ class C2fBottleneck(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Apply bottleneck with optional shortcut connection."""
         return x + self.cv2(self.cv1(x)) if self.add else self.cv2(self.cv1(x))
-    
+
 class C2f(nn.Module):
     """Faster Implementation of CSP Bottleneck with 2 convolutions."""
 

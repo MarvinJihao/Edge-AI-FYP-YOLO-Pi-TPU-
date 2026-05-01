@@ -73,10 +73,10 @@ class Detect(nn.Module):
         return torch.cat(z, 1)
 
     def mnne_forward(self, x):
-        z = []  
+        z = []
         # inference output
         for i in range(self.nl):
-            x[i] = self.m[i](x[i])  
+            x[i] = self.m[i](x[i])
             bs, _, ny, nx = x[i].shape  # x(bs,255,20,20) to x(bs,3,20,20,85)
             x[i] = x[i].view(bs, self.na, self.no, ny, nx).permute(0, 1, 3, 4, 2).contiguous()
 
@@ -90,12 +90,12 @@ class Detect(nn.Module):
             z.append(y.view(bs, -1, self.no))
         prediction = torch.cat(z, 1)
 
-        min_wh, max_wh = 2, 4096   
+        min_wh, max_wh = 2, 4096
         output = [torch.zeros((0, 6), device=prediction.device)] * prediction.shape[0]
-        for index, pre in enumerate(prediction):  
+        for index, pre in enumerate(prediction):
             obj_conf = pre[:,4:5]
             cls_conf = pre[:,5:]
-            cls_conf = obj_conf * cls_conf  
+            cls_conf = obj_conf * cls_conf
             box = xywh2xyxy(pre[:, :4])
             conf, j = cls_conf.max(1, keepdim=True)
             pre = torch.cat((box, conf, j.float()), 1)
@@ -103,10 +103,10 @@ class Detect(nn.Module):
         return output
 
     def mnnd_forward(self, x):
-        z = []  
+        z = []
         # inference output
         for i in range(self.nl):
-            x[i] = self.m[i](x[i])  
+            x[i] = self.m[i](x[i])
             bs, _, ny, nx = x[i].shape  # x(bs,255,20,20) to x(bs,3,20,20,85)
             x[i] = x[i].view(bs, self.na, self.no, ny, nx).permute(0, 1, 3, 4, 2).contiguous()
 
@@ -118,17 +118,17 @@ class Detect(nn.Module):
             wh = (y[..., 2:4] * 2) ** 2 * self.anchor_grid[i].view(1, self.na, 1, 1, 2)  # wh
             y = torch.cat((xy, wh, y[..., 4:]), -1)
             z.append(y.view(bs, -1, self.no))
-        
+
         return torch.cat(z, 1)
 
     def end2end_forward(self, x):
         import torchvision
-        z = []  
+        z = []
         conf_thres = 0.25
         iou_thres = 0.50
         # inference output
         for i in range(self.nl):
-            x[i] = self.m[i](x[i])  
+            x[i] = self.m[i](x[i])
             bs, _, ny, nx = x[i].shape  # x(bs,255,20,20) to x(bs,3,20,20,85)
             x[i] = x[i].view(bs, self.na, self.no, ny, nx).permute(0, 1, 3, 4, 2).contiguous()
 
@@ -141,14 +141,14 @@ class Detect(nn.Module):
             y = torch.cat((xy, wh, y[..., 4:]), -1)
             z.append(y.view(bs, -1, self.no))
         prediction = torch.cat(z, 1)
-        min_wh, max_wh = 2, 4096   
+        min_wh, max_wh = 2, 4096
         xc = prediction[..., 4] > conf_thres  # candidates
         output = [torch.zeros((0, 6), device=prediction.device)] * prediction.shape[0]
-        for index, pre in enumerate(prediction):  
+        for index, pre in enumerate(prediction):
             pre = pre[xc[index]]  # confidence
             obj_conf = pre[:,4:5]
             cls_conf = pre[:,5:]
-            cls_conf = obj_conf * cls_conf  
+            cls_conf = obj_conf * cls_conf
             box = xywh2xyxy(pre[:, :4])
             conf, j = cls_conf.max(1, keepdim=True)
             pre = torch.cat((box, conf, j.float()), 1)[conf.view(-1) > conf_thres]

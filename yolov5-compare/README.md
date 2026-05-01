@@ -4,7 +4,7 @@
       <img width="850" src="https://raw.githubusercontent.com/ultralytics/assets/master/yolov5/v70/splash.png"></a>
   </p>
 
-  English | [简体中文](.github/README_cn.md)
+  English | [Simplified Chinese](.github/README_cn.md)
   <br>
   <div>
     <a href="https://github.com/ultralytics/yolov5/actions/workflows/ci-testing.yml"><img src="https://github.com/ultralytics/yolov5/actions/workflows/ci-testing.yml/badge.svg" alt="YOLOv5 CI"></a>
@@ -18,7 +18,7 @@
 
   <br>
   <p>
-    YOLOv5 🚀 is the world's most loved vision AI, representing <a href="https://ultralytics.com">Ultralytics</a>
+    YOLOv5  is the world's most loved vision AI, representing <a href="https://ultralytics.com">Ultralytics</a>
     open-source research into future vision AI methods, incorporating lessons learned and best practices evolved over thousands of hours of research and development.
     <br><br>
     To request a commercial license please complete the form at <a href="https://ultralytics.com/license">Ultralytics Licensing</a>.
@@ -50,7 +50,7 @@
 </div>
 
 
-## <div align="center">Segmentation ⭐ NEW</div>
+## <div align="center">Segmentation  NEW</div>
 
 <div align="center">
 <a align="center" href="https://ultralytics.com/yolov5" target="_blank">
@@ -211,23 +211,23 @@ python train.py --data coco.yaml --epochs 300 --weights '' --cfg yolov5n.yaml  -
 <details open>
 <summary>Tutorials</summary>
 
-- [Train Custom Data](https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data)  🚀 RECOMMENDED
-- [Tips for Best Training Results](https://github.com/ultralytics/yolov5/wiki/Tips-for-Best-Training-Results)  ☘️
+- [Train Custom Data](https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data)  RECOMMENDED
+- [Tips for Best Training Results](https://github.com/ultralytics/yolov5/wiki/Tips-for-Best-Training-Results)
   RECOMMENDED
 - [Multi-GPU Training](https://github.com/ultralytics/yolov5/issues/475)
-- [PyTorch Hub](https://github.com/ultralytics/yolov5/issues/36) 🌟 NEW
-- [TFLite, ONNX, CoreML, TensorRT Export](https://github.com/ultralytics/yolov5/issues/251) 🚀
-- [NVIDIA Jetson Nano Deployment](https://github.com/ultralytics/yolov5/issues/9627) 🌟 NEW
+- [PyTorch Hub](https://github.com/ultralytics/yolov5/issues/36)  NEW
+- [TFLite, ONNX, CoreML, TensorRT Export](https://github.com/ultralytics/yolov5/issues/251)
+- [NVIDIA Jetson Nano Deployment](https://github.com/ultralytics/yolov5/issues/9627)  NEW
 - [Test-Time Augmentation (TTA)](https://github.com/ultralytics/yolov5/issues/303)
 - [Model Ensembling](https://github.com/ultralytics/yolov5/issues/318)
 - [Model Pruning/Sparsity](https://github.com/ultralytics/yolov5/issues/304)
 - [Hyperparameter Evolution](https://github.com/ultralytics/yolov5/issues/607)
 - [Transfer Learning with Frozen Layers](https://github.com/ultralytics/yolov5/issues/1314)
-- [Architecture Summary](https://github.com/ultralytics/yolov5/issues/6998) 🌟 NEW
-- [Roboflow for Datasets, Labeling, and Active Learning](https://github.com/ultralytics/yolov5/issues/4975)  🌟 NEW
-- [ClearML Logging](https://github.com/ultralytics/yolov5/tree/master/utils/loggers/clearml) 🌟 NEW
-- [Deci Platform](https://github.com/ultralytics/yolov5/wiki/Deci-Platform) 🌟 NEW
-- [Comet Logging](https://github.com/ultralytics/yolov5/tree/master/utils/loggers/comet) 🌟 NEW
+- [Architecture Summary](https://github.com/ultralytics/yolov5/issues/6998)  NEW
+- [Roboflow for Datasets, Labeling, and Active Learning](https://github.com/ultralytics/yolov5/issues/4975)  NEW
+- [ClearML Logging](https://github.com/ultralytics/yolov5/tree/master/utils/loggers/clearml)  NEW
+- [Deci Platform](https://github.com/ultralytics/yolov5/wiki/Deci-Platform)  NEW
+- [Comet Logging](https://github.com/ultralytics/yolov5/tree/master/utils/loggers/comet)  NEW
 
 </details>
 
@@ -254,14 +254,14 @@ python train.py --data coco.yaml --epochs 300 --weights '' --cfg yolov5n.yaml  -
     <img src="https://github.com/ultralytics/yolov5/releases/download/v1.0/logo-deci.png" width="10%" /></a>
 </div>
 
-|Roboflow|ClearML ⭐ NEW|Comet ⭐ NEW|Deci ⭐ NEW|
+|Roboflow|ClearML  NEW|Comet  NEW|Deci  NEW|
 |:-:|:-:|:-:|:-:|
 |Label and export your custom datasets directly to YOLOv5 for training with [Roboflow](https://roboflow.com/?ref=ultralytics)|Automatically track, visualize and even remotely train YOLOv5 using [ClearML](https://cutt.ly/yolov5-readme-clearml) (open-source!)|Free forever, [Comet](https://bit.ly/yolov5-readme-comet) lets you save YOLOv5 models, resume training, and interactively visualise and debug predictions|Automatically compile and quantize YOLOv5 for better inference performance in one click at [Deci](https://bit.ly/yolov5-deci-platform)|
 
 
 ## <div align="center">Ultralytics HUB</div>
 
-[Ultralytics HUB](https://bit.ly/ultralytics_hub) is our ⭐ **NEW** no-code solution to visualize datasets, train YOLOv5 🚀 models, and deploy to the real world in a seamless experience. Get started for **Free** now!
+[Ultralytics HUB](https://bit.ly/ultralytics_hub) is our  **NEW** no-code solution to visualize datasets, train YOLOv5  models, and deploy to the real world in a seamless experience. Get started for **Free** now!
 
 <a align="center" href="https://bit.ly/ultralytics_hub" target="_blank">
 <img width="100%" src="https://github.com/ultralytics/assets/raw/master/im/ultralytics-hub.png"></a>
@@ -314,7 +314,7 @@ YOLOv5 has been designed to be super easy to get started and simple to learn. We
 </details>
 
 
-## <div align="center">Classification ⭐ NEW</div>
+## <div align="center">Classification  NEW</div>
 
 YOLOv5 [release v6.2](https://github.com/ultralytics/yolov5/releases) brings support for classification model training, validation and deployment! See full details in our [Release Notes](https://github.com/ultralytics/yolov5/releases/v6.2) and visit our [YOLOv5 Classification Colab Notebook](https://github.com/ultralytics/yolov5/blob/master/classify/tutorial.ipynb) for quickstart tutorials.
 

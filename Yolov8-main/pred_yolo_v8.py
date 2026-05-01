@@ -4,16 +4,16 @@ import os
 weight_path =r"./runs/detect/train3 640/weights/best.pt"
 # Load a model
 model = YOLO(weight_path)  # load a pretrained model (recommended for training)
-# 图片文件夹路径
+# image folder path
 image_folder = "datasets/animal_yolo_format/images/test"
 
-# 获取文件夹中所有图片文件的路径
+# collect image paths in the folder
 image_paths = [os.path.join(image_folder, img) for img in os.listdir(image_folder) if img.endswith(('.jpg', '.png', '.jpeg'))]
 
-# 遍历所有图片进行推理并保存结果
+# inference
 for image_path in image_paths:
-    # results = model([image_path], device=[7])  # 使用指定的设备进行推理
+    # results = model([image_path], device=[7])  # use the selected deviceinference
     # for result in results:
         # boxes = result.boxes  # Boxes object for bounding box outputs
-        # result.save(filename=f"result_{os.path.basename(image_path)}")  # 保存结果到磁盘
+        # result.save(filename=f"result_{os.path.basename(image_path)}")  #
     results = model.predict(task="detect", source=image_path, imgsz=640, max_det=1000, conf=0.60, show_labels=False, show_conf=True, save=True, device="cpu", augment=True)
