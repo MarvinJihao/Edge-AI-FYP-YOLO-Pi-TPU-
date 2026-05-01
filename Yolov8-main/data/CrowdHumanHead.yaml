@@ -1,0 +1,20 @@
+# Ultralytics YOLO 🚀, AGPL-3.0 license
+# COCO8 dataset (first 8 images from COCO train2017) by Ultralytics for HUB https://hub.ultralytics.com
+# Example usage: yolo train data=coco8.yaml
+# parent
+# ├── ultralytics
+# └── datasets
+#     └── coco8  ← downloads here (1 MB)
+
+
+# Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
+path: /root/autodl-tmp/Yolov8-main/datasets/animal_yolo_format  # ✅ 使用绝对路径
+train: images/train
+val: images/val
+test: images/test
+# number of classes
+nc: 6
+
+# class names
+
+names: ['bird', 'cat',  'cow',  'dog', 'horse', 'sheep']

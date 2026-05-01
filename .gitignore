@@ -1,0 +1,65 @@
+# Python / IDE cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.idea/
+.vscode/
+*.log
+
+# Environments
+.env
+.venv/
+venv/
+env/
+conda/
+
+# Datasets and generated training outputs
+datasets/
+**/runs/
+**/wandb/
+**/logs/
+**/exp*/
+**/images/tmp/
+**/static/image/*output*
+
+# Model weights and exported binaries
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.engine
+*.torchscript
+*.mlmodel
+*.pb
+*.weights
+*.mnn
+*.bin
+
+# Large archives and packaged datasets
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Native build artifacts and bundled runtime libraries
+*.so
+*.so.*
+*.dll
+*.dylib
+*.lib
+*.a
+*.exe
+build/
+dist/
+.gradle/
+**/.gradle/
+**/local.properties
+
+# OS files
+.DS_Store
+Thumbs.db

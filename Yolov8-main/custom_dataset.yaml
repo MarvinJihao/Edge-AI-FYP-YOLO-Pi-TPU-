@@ -1,0 +1,11 @@
+names:
+- bird
+- cat
+- cow
+- dog
+- horse
+- sheep
+nc: 6
+path: datasets/animal_yolo_format
+train: ./datasets/animal_yolo_format/images/train
+val: ./datasets/animal_yolo_format/images/val
